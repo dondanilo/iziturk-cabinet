@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="IziTurkish">
+  <meta name="theme-color" content="#E30A17">
+  <title>IziTurkish — Учи турецкий для жизни в Турции</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="https://iziturkish.com/favicon.svg">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: LOGIN
+═══════════════════════════════════════════════ -->
+<div id="screen-login" class="screen active">
+  <div class="login-flag">🇹🇷</div>
+  <div class="login-logo">IziTurkish</div>
+  <h1 class="login-title">Турецкий для жизни в Турции</h1>
+  <p class="login-sub">150 слов · 10 сценариев · Офлайн PWA<br>Войди и начни учить прямо сейчас</p>
+  <button class="btn-google" onclick="signInWithGoogle()">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+    </svg>
+    Войти через Google
+  </button>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: ONBOARDING
+═══════════════════════════════════════════════ -->
+<div id="screen-onboarding" class="screen">
+  <div class="ob-step">
+    <div class="ob-emoji">🇹🇷</div>
+    <h2 class="ob-title">Добро пожаловать!</h2>
+    <p class="ob-desc">Мы поможем тебе выучить турецкий для реальной жизни в Турции. Выбери дневную цель:</p>
+    <div class="goal-options">
+      <button class="goal-btn" data-xp="20" onclick="selectObGoal(20)">
+        <span class="goal-xp">20</span>
+        <span class="goal-label">XP · Лёгко</span>
+      </button>
+      <button class="goal-btn selected" data-xp="50" onclick="selectObGoal(50)">
+        <span class="goal-xp">50</span>
+        <span class="goal-label">XP · Нормально</span>
+      </button>
+      <button class="goal-btn" data-xp="100" onclick="selectObGoal(100)">
+        <span class="goal-xp">100</span>
+        <span class="goal-label">XP · Интенсив</span>
+      </button>
+    </div>
+    <button class="btn-primary" onclick="finishOnboarding()">Начать учить! →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: HOME
+═══════════════════════════════════════════════ -->
+<div id="screen-home" class="screen">
+  <div id="sub-banner" class="sub-banner" style="display:none" onclick="showPaywall()">
+    <div class="sub-banner-text">🎁 Получи полный доступ ко всем урокам и сценариям</div>
+    <button class="sub-banner-btn">Попробовать</button>
+  </div>
+  <div class="home-header">
+    <div id="home-greeting" class="home-greeting">Merhaba!</div>
+    <div class="home-stats">
+      <div class="stat-card">
+        <div id="home-streak" class="stat-value">0</div>
+        <div class="stat-label">🔥 Стрик</div>
+      </div>
+      <div class="stat-card">
+        <div id="home-xp" class="stat-value">0</div>
+        <div class="stat-label">⭐ XP</div>
+      </div>
+      <div class="stat-card">
+        <div id="home-level" class="stat-value">1</div>
+        <div class="stat-label">🚀 Уровень</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="daily-progress">
+    <div class="progress-label">
+      <span>Дневная цель</span>
+      <span id="daily-progress-text">0 / 50 XP</span>
+    </div>
+    <div class="progress-bar">
+      <div id="daily-progress-fill" class="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="home-actions">
+    <div class="action-card" onclick="showLessons()">
+      <span class="action-icon">📚</span>
+      <div class="action-info">
+        <div class="action-title">Уроки</div>
+        <div class="action-desc">150 слов · SRS-повторение</div>
+      </div>
+      <span class="action-arrow">›</span>
+    </div>
+    <div class="action-card" onclick="showScenarios()">
+      <span class="action-icon">🎭</span>
+      <div class="action-info">
+        <div class="action-title">Сценарии</div>
+        <div class="action-desc">Банк, врач, аренда и ещё 7</div>
+      </div>
+      <span class="action-arrow">›</span>
+    </div>
+    <div class="action-card" onclick="showPhrases()">
+      <span class="action-icon">💬</span>
+      <div class="action-info">
+        <div class="action-title">Разговорник</div>
+        <div class="action-desc">10 категорий · с озвучкой</div>
+      </div>
+      <span class="action-arrow">›</span>
+    </div>
+    <div class="action-card" onclick="showSpeechCategories()">
+      <span class="action-icon">🎙️</span>
+      <div class="action-info">
+        <div class="action-title">Тренировка речи</div>
+        <div class="action-desc">Говори — получай оценку</div>
+      </div>
+      <span class="action-arrow">›</span>
+    </div>
+    <div class="action-card" onclick="showPlan()">
+      <span class="action-icon">📅</span>
+      <div class="action-info">
+        <div class="action-title">30-дневный план</div>
+        <div class="action-desc">Структурированный путь</div>
+      </div>
+      <span class="action-arrow">›</span>
+    </div>
+    <div class="action-card" onclick="showAudit()">
+      <span class="action-icon">📊</span>
+      <div class="action-info">
+        <div class="action-title">Мой прогресс</div>
+        <div class="action-desc">Статистика и достижения</div>
+      </div>
+      <span class="action-arrow">›</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: LESSONS
+═══════════════════════════════════════════════ -->
+<div id="screen-lessons" class="screen">
+  <div class="top-bar">
+    <h2>📚 Уроки и сценарии</h2>
+  </div>
+  <div style="display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid var(--gray-100);background:#fff">
+    <button class="btn-secondary" style="flex:1;max-width:none;padding:10px 12px;font-size:.85rem" onclick="showLessons()">📚 Уроки</button>
+    <button class="btn-secondary" style="flex:1;max-width:none;padding:10px 12px;font-size:.85rem" onclick="showScenarios()">🎭 Сценарии</button>
+  </div>
+  <div id="lessons-list" class="lessons-list"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: LESSON (QUIZ)
+═══════════════════════════════════════════════ -->
+<div id="screen-lesson" class="screen">
+  <div class="quiz-header">
+    <div class="quiz-progress-bar">
+      <div id="quiz-progress-fill" class="quiz-progress-fill" style="width:0%"></div>
+    </div>
+    <div class="quiz-meta">
+      <div class="hearts" id="quiz-hearts">❤️❤️❤️</div>
+      <div id="quiz-counter">1 / 10</div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-question">
+      <div id="quiz-prompt" class="quiz-prompt">Что означает это слово?</div>
+      <div id="quiz-word" class="quiz-word">merhaba</div>
+      <div id="quiz-transcription" class="quiz-transcription">МЕРХАБА</div>
+      <button id="quiz-speak-btn" class="quiz-speak-btn" onclick="speakTr(document.getElementById('quiz-word').textContent)">🔊</button>
+    </div>
+
+    <div id="options-container" class="options-grid"></div>
+
+    <div id="typing-container" style="display:none">
+      <input id="typing-input" class="typing-input" type="text" placeholder="Введите турецкое слово..."
+             onkeydown="if(event.key==='Enter')submitTyping()">
+      <button class="btn-primary" style="margin-top:12px" onclick="submitTyping()">Проверить</button>
+    </div>
+
+    <div id="feedback-bar" class="feedback-bar"></div>
+
+    <div class="next-btn" id="next-btn" style="display:none">
+      <button class="btn-primary" onclick="nextExercise()">Далее →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: LESSON COMPLETE
+═══════════════════════════════════════════════ -->
+<div id="screen-lesson-complete" class="screen">
+  <div class="complete-emoji">🎉</div>
+  <h2 class="complete-title">Урок завершён!</h2>
+  <p class="complete-sub" id="lesson-complete-msg">Отличная работа!</p>
+  <div class="complete-stats">
+    <div class="complete-stat">
+      <div class="complete-stat-val"><span id="complete-correct">0</span>/<span id="complete-total">10</span></div>
+      <div class="complete-stat-label">Правильно</div>
+    </div>
+    <div class="complete-stat">
+      <div class="complete-stat-val" id="complete-xp">+0</div>
+      <div class="complete-stat-label">XP получено</div>
+    </div>
+    <div class="complete-stat">
+      <div class="complete-stat-val" id="complete-streak">0🔥</div>
+      <div class="complete-stat-label">Стрик</div>
+    </div>
+  </div>
+  <button class="btn-primary" onclick="showLessons()" style="margin-bottom:12px">Ещё урок →</button>
+  <button class="btn-secondary" onclick="showHome()">На главную</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: SCENARIO
+═══════════════════════════════════════════════ -->
+<div id="screen-scenario" class="screen">
+  <div class="scenario-step-header">
+    <div class="scenario-title-bar" id="scenario-name">Сценарий</div>
+    <div class="scenario-step-bar">
+      <div id="scenario-step-fill" class="scenario-step-fill" style="width:0%"></div>
+    </div>
+  </div>
+  <div id="step-content" class="step-content"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: SCENARIO COMPLETE
+═══════════════════════════════════════════════ -->
+<div id="screen-scenario-complete" class="screen">
+  <div class="complete-emoji">🎭</div>
+  <div id="sc-stars" class="stars-display">⭐⭐⭐</div>
+  <h2 class="complete-title">Сценарий пройден!</h2>
+  <div class="complete-stats">
+    <div class="complete-stat">
+      <div class="complete-stat-val" id="sc-score">0/0</div>
+      <div class="complete-stat-label">Правильно</div>
+    </div>
+    <div class="complete-stat">
+      <div class="complete-stat-val" id="sc-xp">+0</div>
+      <div class="complete-stat-label">XP</div>
+    </div>
+  </div>
+  <button class="btn-primary" onclick="showScenarios()" style="margin-bottom:12px">Другой сценарий →</button>
+  <button class="btn-secondary" onclick="showHome()">На главную</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: WORD TABLE
+═══════════════════════════════════════════════ -->
+<div id="screen-word-table" class="screen">
+  <div class="top-bar">
+    <h2>📖 Словарь (150 слов)</h2>
+  </div>
+  <div class="word-search-bar">
+    <input id="word-search" class="word-search" type="search" placeholder="Поиск: merhaba, привет...">
+  </div>
+  <div id="word-list"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: PHRASES
+═══════════════════════════════════════════════ -->
+<div id="screen-phrases" class="screen">
+  <div class="top-bar">
+    <h2>💬 Разговорник</h2>
+  </div>
+  <div id="phrases-cats" class="phrases-cats"></div>
+</div>
+
+<div id="screen-phrase-list" class="screen">
+  <div class="top-bar">
+    <button class="back-btn" onclick="showPhrases()">←</button>
+    <h2 id="phrase-list-title">Фразы</h2>
+  </div>
+  <div id="phrase-items" class="phrase-items"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: SPEECH CATEGORIES
+═══════════════════════════════════════════════ -->
+<div id="screen-speech-categories" class="screen">
+  <div class="top-bar">
+    <h2>🎙️ Тренировка речи</h2>
+  </div>
+  <div class="section-title" style="padding:16px 16px 8px">Выбери категорию:</div>
+  <div id="speech-cats" class="phrases-cats"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: SPEECH
+═══════════════════════════════════════════════ -->
+<div id="screen-speech" class="screen">
+  <div class="top-bar">
+    <button class="back-btn" onclick="showSpeechCategories()">←</button>
+    <h2 id="speech-cat-name">Речь</h2>
+    <span id="speech-counter" style="font-size:.82rem;color:var(--gray-400)">1/8</span>
+  </div>
+  <div class="speech-content">
+    <p class="speech-phrase-tr" id="speech-phrase-tr">Merhaba!</p>
+    <p class="speech-phrase-ru" id="speech-phrase-ru">Привет!</p>
+    <button class="mic-btn" id="mic-btn" onclick="startListening()">🎙️</button>
+    <p style="margin-top:12px;font-size:.78rem;color:var(--gray-400)">Нажми и говори по-турецки</p>
+    <div class="speech-result" id="speech-result"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: SPEECH COMPLETE
+═══════════════════════════════════════════════ -->
+<div id="screen-speech-complete" class="screen">
+  <div style="align-items:center;justify-content:center;display:flex;flex-direction:column;flex:1;padding:40px 24px;text-align:center">
+    <div style="font-size:5rem;margin-bottom:16px">🎙️</div>
+    <h2 class="complete-title">Тренировка завершена!</h2>
+    <div class="complete-stats" style="margin-top:24px">
+      <div class="complete-stat">
+        <div class="complete-stat-val" id="speech-score-val">0%</div>
+        <div class="complete-stat-label">Точность</div>
+      </div>
+      <div class="complete-stat">
+        <div class="complete-stat-val" id="speech-correct-val">0/8</div>
+        <div class="complete-stat-label">Правильно</div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="showSpeechCategories()" style="margin-top:24px;margin-bottom:12px">Ещё раз →</button>
+    <button class="btn-secondary" onclick="showHome()">На главную</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: 30-DAY PLAN
+═══════════════════════════════════════════════ -->
+<div id="screen-plan" class="screen">
+  <div class="top-bar">
+    <h2>📅 30-дневный план</h2>
+  </div>
+  <div id="plan-weeks" class="plan-weeks"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: AUDIT
+═══════════════════════════════════════════════ -->
+<div id="screen-audit" class="screen">
+  <div class="audit-header">
+    <div id="audit-level" class="audit-level">1</div>
+    <div class="audit-level-label">Уровень</div>
+    <div class="audit-xp-bar">
+      <div id="audit-xp-fill" class="audit-xp-fill" style="width:0%"></div>
+    </div>
+    <div id="audit-xp-label" class="audit-xp-label">0 / 500 XP</div>
+  </div>
+  <div class="audit-grid">
+    <div class="audit-card">
+      <div id="audit-streak" class="audit-val">0</div>
+      <div class="audit-label">🔥 Стрик (дней)</div>
+    </div>
+    <div class="audit-card">
+      <div id="audit-lessons" class="audit-val">0</div>
+      <div class="audit-label">📚 Уроков пройдено</div>
+    </div>
+    <div class="audit-card">
+      <div id="audit-xp-total" class="audit-val">0</div>
+      <div class="audit-label">⭐ Всего XP</div>
+    </div>
+    <div class="audit-card">
+      <div id="audit-scenarios" class="audit-val">0</div>
+      <div class="audit-label">🎭 Сценариев</div>
+    </div>
+    <div class="audit-card">
+      <div id="audit-words" class="audit-val">0</div>
+      <div class="audit-label">📖 Слов изучено</div>
+    </div>
+    <div class="audit-card">
+      <div id="audit-errors" class="audit-val">0</div>
+      <div class="audit-label">❌ Слабых мест</div>
+    </div>
+  </div>
+  <div style="padding:0 16px 16px">
+    <button class="btn-secondary" style="max-width:none" onclick="showAchievements()">🏆 Достижения</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: ACHIEVEMENTS
+═══════════════════════════════════════════════ -->
+<div id="screen-achievements" class="screen">
+  <div class="top-bar">
+    <button class="back-btn" onclick="showAudit()">←</button>
+    <h2>🏆 Достижения</h2>
+  </div>
+  <div id="achievements-grid" class="achievements-grid"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: BLOG
+═══════════════════════════════════════════════ -->
+<div id="screen-blog" class="screen">
+  <div class="top-bar">
+    <h2>📰 Блог</h2>
+  </div>
+  <div id="blog-list" class="blog-list"></div>
+</div>
+
+<div id="screen-blog-article" class="screen screen-blog-article">
+  <div class="top-bar">
+    <button class="back-btn" onclick="showBlog()">←</button>
+    <h2 id="blog-article-title">Статья</h2>
+  </div>
+  <iframe id="blog-article-frame" src="about:blank" title="Статья блога"></iframe>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: NEWS
+═══════════════════════════════════════════════ -->
+<div id="screen-news" class="screen">
+  <div class="top-bar">
+    <h2>🗞️ Новости из Турции</h2>
+  </div>
+  <div id="news-topics" class="news-topics"></div>
+  <div id="news-list" class="news-list"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: SETTINGS
+═══════════════════════════════════════════════ -->
+<div id="screen-settings" class="screen">
+  <div class="top-bar">
+    <h2>⚙️ Настройки</h2>
+  </div>
+  <div class="settings-content">
+    <div class="settings-user-card">
+      <div class="user-avatar" id="settings-avatar">U</div>
+      <div>
+        <div class="user-name" id="settings-name">Пользователь</div>
+        <div class="user-email" id="settings-email"></div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-item">
+        <span class="settings-item-icon">📊</span>
+        <span class="settings-item-label">Статус подписки</span>
+        <span class="settings-item-value" id="settings-sub-status">Бесплатный план</span>
+      </div>
+      <div class="settings-item" onclick="showPaywall()">
+        <span class="settings-item-icon">⭐</span>
+        <span class="settings-item-label">Получить полный доступ</span>
+        <span class="settings-item-value">›</span>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="section-title" style="padding:12px 16px 6px;background:none">Дневная цель</div>
+      <div style="padding:12px 16px;display:flex;gap:10px">
+        <button class="goal-btn" data-xp="20" onclick="setDailyGoal(20)">
+          <span class="goal-xp">20</span><span class="goal-label">Лёгко</span>
+        </button>
+        <button class="goal-btn selected" data-xp="50" onclick="setDailyGoal(50)">
+          <span class="goal-xp">50</span><span class="goal-label">Нормально</span>
+        </button>
+        <button class="goal-btn" data-xp="100" onclick="setDailyGoal(100)">
+          <span class="goal-xp">100</span><span class="goal-label">Интенсив</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-item" onclick="togglePush()">
+        <span class="settings-item-icon">🔔</span>
+        <span class="settings-item-label" id="push-toggle">Включить уведомления</span>
+      </div>
+      <div class="settings-item" onclick="window.open('https://iziturkish.com/blog/','_blank')">
+        <span class="settings-item-icon">📰</span>
+        <span class="settings-item-label">Блог IziTurkish</span>
+        <span class="settings-item-value">›</span>
+      </div>
+      <div class="settings-item" onclick="showAchievements()">
+        <span class="settings-item-icon">🏆</span>
+        <span class="settings-item-label">Достижения</span>
+        <span class="settings-item-value">›</span>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-item" onclick="window.open('https://iziturkish.com/privacy.html','_blank')">
+        <span class="settings-item-icon">🔒</span>
+        <span class="settings-item-label">Политика конфиденциальности</span>
+        <span class="settings-item-value">›</span>
+      </div>
+      <div class="settings-item" onclick="window.open('https://iziturkish.com/terms.html','_blank')">
+        <span class="settings-item-icon">📋</span>
+        <span class="settings-item-label">Условия использования</span>
+        <span class="settings-item-value">›</span>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-item danger" onclick="signOut()">
+        <span class="settings-item-icon">🚪</span>
+        <span class="settings-item-label">Выйти из аккаунта</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: PAYWALL
+═══════════════════════════════════════════════ -->
+<div id="screen-paywall" class="screen">
+  <div class="top-bar">
+    <button class="back-btn" onclick="history.back()">←</button>
+    <h2>Полный доступ</h2>
+  </div>
+  <div class="paywall-content">
+    <div class="paywall-icon">🇹🇷</div>
+    <h2 class="paywall-title">Учи без ограничений</h2>
+    <p class="paywall-sub">Открой все уроки, сценарии и тренировки речи</p>
+    <div class="paywall-features">
+      <div class="paywall-feature">150 слов · 5 групп уроков</div>
+      <div class="paywall-feature">10 сценариев из реальной жизни</div>
+      <div class="paywall-feature">SRS-повторение и слабые места</div>
+      <div class="paywall-feature">Тренировка речи с микрофоном</div>
+      <div class="paywall-feature">Офлайн-режим (PWA)</div>
+      <div class="paywall-feature">Новости из Турции с переводом</div>
+    </div>
+    <div class="plan-cards">
+      <div class="plan-card" id="plan-monthly" onclick="selectPlan('monthly')">
+        <div class="plan-price" id="paywall-monthly-price">€8.99</div>
+        <div class="plan-period">в месяц</div>
+      </div>
+      <div class="plan-card selected" id="plan-yearly" onclick="selectPlan('yearly')">
+        <div class="plan-badge">−44%</div>
+        <div class="plan-price" id="paywall-yearly-price">€4.99</div>
+        <div class="plan-period">в месяц</div>
+        <div class="plan-saving">€59.88 / год</div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="buyPlan(document.querySelector('.plan-card.selected').id.replace('plan-',''))">
+      Начать — 7 дней бесплатно →
+    </button>
+    <p style="font-size:.75rem;color:var(--gray-400);margin-top:12px;text-align:center">
+      Отмена в любой момент · без скрытых платежей
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     BOTTOM NAVIGATION
+═══════════════════════════════════════════════ -->
+<nav id="bottom-nav" class="bottom-nav" style="display:none">
+  <button id="nav-home"     class="nav-btn active" onclick="showHome()">
+    <span class="nav-icon">🏠</span><span>Главная</span>
+  </button>
+  <button id="nav-lessons"  class="nav-btn" onclick="showLessons()">
+    <span class="nav-icon">📚</span><span>Уроки</span>
+  </button>
+  <button id="nav-phrases"  class="nav-btn" onclick="showPhrases()">
+    <span class="nav-icon">💬</span><span>Фразы</span>
+  </button>
+  <button id="nav-words"    class="nav-btn" onclick="showWordTable()">
+    <span class="nav-icon">📖</span><span>Слова</span>
+  </button>
+  <button id="nav-speech"   class="nav-btn" onclick="showSpeechCategories()">
+    <span class="nav-icon">🎙️</span><span>Речь</span>
+  </button>
+  <button id="nav-blog"     class="nav-btn" onclick="showBlog()">
+    <span class="nav-icon">📰</span><span>Блог</span>
+  </button>
+  <button id="nav-settings" class="nav-btn" onclick="showSettings()">
+    <span class="nav-icon">⚙️</span><span>Профиль</span>
+  </button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════
+     WORD MODAL
+═══════════════════════════════════════════════ -->
+<div id="modal-overlay" class="modal-overlay" onclick="if(event.target===this)closeWordModal()">
+  <div class="modal-sheet">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+      <div id="modal-tr" class="modal-tr">merhaba</div>
+      <button style="background:none;border:none;font-size:1.4rem;cursor:pointer"
+              onclick="speakTr(document.getElementById('modal-tr').textContent)">🔊</button>
+    </div>
+    <div id="modal-transcription" class="modal-transcription">МЕРХАБА</div>
+    <div id="modal-ru" class="modal-ru">Привет</div>
+    <div id="modal-example" class="modal-example"></div>
+    <div id="modal-note" class="modal-note" style="display:none"></div>
+    <button class="btn-secondary" style="margin-top:20px" onclick="closeWordModal()">Закрыть</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     TOAST
+═══════════════════════════════════════════════ -->
+<div id="toast" class="toast"></div>
+
+<!-- ═══════════════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════════════ -->
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
