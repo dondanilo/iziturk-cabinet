@@ -8,12 +8,12 @@ const LEMON_YEARLY  = 'YEARLY_PRODUCT_ID';   // заменить
 const LEMON_STORE   = 'iziturkish';
 
 const FIREBASE_CONFIG = {
-  apiKey:            "FIREBASE_API_KEY",
-  authDomain:        "FIREBASE_AUTH_DOMAIN",
-  projectId:         "FIREBASE_PROJECT_ID",
-  storageBucket:     "FIREBASE_STORAGE_BUCKET",
-  messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
-  appId:             "FIREBASE_APP_ID",
+  apiKey:            "AIzaSyDfACbJmeQPwV17g9QpMM9DSs8O1GksNW8",
+  authDomain:        "izi-turkish.firebaseapp.com",
+  projectId:         "izi-turkish",
+  storageBucket:     "izi-turkish.firebasestorage.app",
+  messagingSenderId: "390656518022",
+  appId:             "1:390656518022:web:4e64f7f6577c85f049ae07",
 };
 
 const XP_PER_CORRECT       = 10;
