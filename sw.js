@@ -1,5 +1,5 @@
 // IziTurkish Service Worker
-const CACHE_NAME = 'iziturk-v1';
+const CACHE_NAME = 'iziturk-v2';
 const STATIC_FILES = [
   '/',
   '/index.html',
