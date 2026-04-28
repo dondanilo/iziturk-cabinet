@@ -8,7 +8,7 @@ const LEMON_YEARLY  = 'YEARLY_PRODUCT_ID';   // заменить
 const LEMON_STORE   = 'iziturkish';
 
 const FIREBASE_CONFIG = {
-  apiKey:            "AIzaSyDfACbJmeQPwV17g9QpMM9DSs8O1GksNW8",
+  apiKey:            "AIzaSyDfACbJmeQPwVI7g9QpMM9DSs8O1GksNW8",
   authDomain:        "izi-turkish.firebaseapp.com",
   projectId:         "izi-turkish",
   storageBucket:     "izi-turkish.firebasestorage.app",
