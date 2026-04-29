@@ -1,69 +1,73 @@
-// IziTurkish Service Worker
-const CACHE_NAME = 'iziturk-v2';
-const STATIC_FILES = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/app.js',
-  '/data.js',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png',
+const CACHE_NAME = 'iziturkish-v3';
+const ASSETS = [
+  './',
+  './index.html',
+  './style.css',
+  './app.js',
+  './data.js',
+  './manifest.json'
 ];
 
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_FILES))
+// Install: cache all assets
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
-  self.skipWaiting();
+  // Don't skipWaiting here — page will send SKIP_WAITING when ready
 });
 
-self.addEventListener('activate', e => {
-  e.waitUntil(
+// Page tells us to take over (triggers controllerchange → page reloads)
+self.addEventListener('message', event => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
+// Activate: delete old caches and claim clients
+self.addEventListener('activate', event => {
+  event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
-  );
-  self.clients.claim();
-});
-
-self.addEventListener('fetch', e => {
-  // Пропускаем Firebase, LemonSqueezy, внешние API
-  const url = new URL(e.request.url);
-  if (!url.origin.includes('cabinet.iziturkish.com') &&
-      !url.hostname.includes('localhost') &&
-      !url.hostname.includes('127.0.0.1')) {
-    return;
-  }
-  e.respondWith(
-    caches.match(e.request).then(cached => {
-      if (cached) return cached;
-      return fetch(e.request).then(resp => {
-        if (!resp || resp.status !== 200 || resp.type === 'opaque') return resp;
-        const clone = resp.clone();
-        caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
-        return resp;
-      });
-    })
+    ).then(() => self.clients.claim())
   );
 });
 
-// Push-уведомления
-self.addEventListener('push', e => {
-  const data = e.data ? e.data.json() : {};
+// Push notifications
+self.addEventListener('push', event => {
+  const data = event.data?.json() || {};
   const title = data.title || 'IziTurkish';
   const options = {
-    body: data.body || 'Пора учить турецкий! 🇹🇷',
+    body: data.body || 'Время для турецкий! 🇹🇷',
     icon: '/icon-192.png',
-    badge: '/icon-192.png',
-    data: { url: data.url || '/' }
+    badge: '/icon-72.png',
+    vibrate: [200, 100, 200],
+    data: { url: data.url || 'https://cabinet.iziturkish.com' }
   };
-  e.waitUntil(self.registration.showNotification(title, options));
+  event.waitUntil(self.registration.showNotification(title, options));
 });
 
-self.addEventListener('notificationclick', e => {
-  e.notification.close();
-  e.waitUntil(
-    clients.openWindow(e.notification.data.url || '/')
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const url = event.notification.data?.url || 'https://cabinet.iziturkish.com';
+  event.waitUntil(clients.openWindow(url));
+});
+
+// Fetch: network-first for app files, cache fallback
+self.addEventListener('fetch', event => {
+  // Only handle same-origin GET requests
+  if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+  if (url.origin !== location.origin) return;
+
+  event.respondWith(
+    fetch(event.request)
+      .then(response => {
+        // Update cache with fresh response
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        return response;
+      })
+      .catch(() => {
+        // Network failed — serve from cache
+        return caches.match(event.request);
+      })
   );
 });

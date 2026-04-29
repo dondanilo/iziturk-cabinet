@@ -565,3 +565,14 @@ const CORRECT_PHRASES = [
   'Mükemmel! Превосходно!',
   'Çok iyi! Очень хорошо!',
 ];
+
+// Compatibility alias: app.js uses VERBS, data uses WORDS
+const VERBS = WORDS.map(w => ({
+  ...w,
+  infinitive: w.tr,
+  example: w.example ? { greek: w.example.tr, ru: w.example.ru } : undefined
+}));
+
+// Empty stubs for Greek-specific structures not used in Turkish
+const VOCAB_CATEGORIES = [];
+const QUIZ_CATEGORIES  = [];
