@@ -173,6 +173,15 @@ function getLessonModules() {
 
 let teachState = { module: null, cards: [], currentCard: 0 };
 
+// Race a Firestore promise against a hard timeout so a missing/uninitialized
+// Firestore database never hangs the auth flow indefinitely.
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('fs_timeout')), ms))
+  ]);
+}
+
 // ============================================================
 // PERSISTENCE
 // ============================================================
@@ -186,12 +195,12 @@ async function loadState() {
   // Потом синхронизируем с Firestore (приоритет)
   if (currentUser) {
     try {
-      const doc = await db.collection('users').doc(currentUser.uid).get();
+      const doc = await withTimeout(db.collection('users').doc(currentUser.uid).get(), 5000);
       if (doc.exists) {
         state = { ...DEFAULT_STATE, ...doc.data() };
         localStorage.setItem('greek-app-state-v2', JSON.stringify(state));
       }
-    } catch (e) { console.error('Firestore load error:', e); }
+    } catch (e) { console.error('Firestore load error:', e.message); }
   }
 }
 
@@ -212,11 +221,14 @@ function saveState() {
 async function saveUserEmail() {
   if (!currentUser?.email) return;
   try {
-    await db.collection('users').doc(currentUser.uid).set(
-      { email: currentUser.email.toLowerCase() },
-      { merge: true }
+    await withTimeout(
+      db.collection('users').doc(currentUser.uid).set(
+        { email: currentUser.email.toLowerCase() },
+        { merge: true }
+      ),
+      5000
     );
-  } catch (e) { console.error('saveUserEmail error:', e); }
+  } catch (e) { console.error('saveUserEmail error:', e.message); }
 }
 
 // Check subscription status: active / trialing = OK, else paywall
@@ -238,7 +250,7 @@ async function checkSubscription() {
   try {
     const email = currentUser.email?.toLowerCase();
     if (email) {
-      const doc = await db.collection('subscriptions').doc(email).get();
+      const doc = await withTimeout(db.collection('subscriptions').doc(email).get(), 5000);
       if (doc.exists) {
         const s = doc.data();
         if (ACTIVE_STATUSES.includes(s.status)) {
