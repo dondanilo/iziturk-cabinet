@@ -2631,7 +2631,7 @@ function renderImageQuiz(word, category) {
     <div class="vocab-image-grid">
       ${options.map((opt, i) => `
         <button class="vocab-image-card" onclick="selectVocabAnswer(${i})">
-          <span class="vocab-card-emoji">${opt.emoji}</span>
+          <span class="vocab-card-emoji">${opt.emoji || opt.greek}</span>
           <div class="vocab-card-label">${opt.translation}</div>
         </button>`).join('')}
     </div>`;
@@ -2699,7 +2699,7 @@ function selectVocabAnswer(optionIdx) {
   } else {
     buttons[optionIdx].classList.add('wrong');
     buttons[correctIdx].classList.add('correct');
-    document.getElementById('vocab-feedback').innerHTML = `Правильно: <strong>${correctWord.translation}</strong> ${correctWord.emoji}`;
+    document.getElementById('vocab-feedback').innerHTML = `Правильно: <strong>${correctWord.translation}</strong>`;
     document.getElementById('vocab-feedback').className = 'feedback-message wrong';
     document.getElementById('vocab-footer').className = 'lesson-footer wrong-footer';
     playSound('wrong');

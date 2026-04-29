@@ -1,4 +1,4 @@
-const CACHE_NAME = 'iziturkish-v5';
+const CACHE_NAME = 'iziturkish-v6';
 const ASSETS = [
   './',
   './index.html',

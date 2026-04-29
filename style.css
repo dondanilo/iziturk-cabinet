@@ -2,6 +2,9 @@
   --green: #E30A17;
   --green-dark: #b50813;
   --green-light: #FFE8E8;
+  --correct: #58CC02;
+  --correct-dark: #46a302;
+  --correct-light: #D7FFB8;
   --red: #FF4B4B;
   --red-light: #FFE8E8;
   --yellow: #FFD900;
@@ -145,16 +148,16 @@ body {
 }
 .option-btn:hover:not(:disabled) { border-color: var(--blue); background: rgba(28,176,246,0.06); transform: translateY(-2px); box-shadow: 0 5px 0 rgba(28,176,246,0.2); }
 .option-btn:disabled { cursor: default; }
-.option-btn.correct { border-color: var(--green); background: var(--green-light); color: var(--green-dark); box-shadow: 0 3px 0 var(--green-dark); }
+.option-btn.correct { border-color: var(--correct); background: var(--correct-light); color: var(--correct-dark); box-shadow: 0 3px 0 var(--correct-dark); }
 .option-btn.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); box-shadow: 0 3px 0 #cc2222; }
 
 .lesson-footer { display: none; flex-direction: column; gap: 12px; padding-top: 6px; animation: slideUp 0.25s ease; }
-.lesson-footer.correct-footer .btn-primary { background: var(--green); box-shadow: 0 4px 0 var(--green-dark); }
+.lesson-footer.correct-footer .btn-primary { background: var(--correct); box-shadow: 0 4px 0 var(--correct-dark); }
 .lesson-footer.wrong-footer .btn-primary { background: var(--red); box-shadow: 0 4px 0 #cc2222; }
 
 @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 .feedback-message { font-size: 17px; font-weight: 800; min-height: 22px; }
-.feedback-message.correct { color: var(--green-dark); }
+.feedback-message.correct { color: var(--correct-dark); }
 .feedback-message.wrong { color: var(--red); }
 
 /* ============================================================ COMPLETE */
@@ -317,7 +320,7 @@ body {
 }
 .scenario-option-btn:hover:not(:disabled) { border-color: var(--blue); background: rgba(28,176,246,0.05); transform: translateY(-1px); }
 .scenario-option-btn:disabled { cursor: default; }
-.scenario-option-btn.correct { border-color: var(--green); background: var(--green-light); box-shadow: 0 3px 0 var(--green-dark); }
+.scenario-option-btn.correct { border-color: var(--correct); background: var(--correct-light); box-shadow: 0 3px 0 var(--correct-dark); }
 .scenario-option-btn.wrong { border-color: var(--red); background: var(--red-light); box-shadow: 0 3px 0 #cc2222; }
 .opt-greek { font-size: 16px; font-weight: 800; color: var(--text); }
 .opt-transcription { font-size: 12px; color: var(--blue); font-weight: 700; margin-top: 2px; }
@@ -328,7 +331,7 @@ body {
   font-size: 14px; font-weight: 700; line-height: 1.5; margin-top: 4px;
   animation: slideUp 0.2s ease;
 }
-.scenario-feedback.correct { background: var(--green-light); color: var(--green-dark); border: 2px solid var(--green); }
+.scenario-feedback.correct { background: var(--correct-light); color: var(--correct-dark); border: 2px solid var(--correct); }
 .scenario-feedback.wrong { background: var(--red-light); color: var(--red); border: 2px solid var(--red); }
 
 /* ============================================================ VERB TABLE */
@@ -979,7 +982,7 @@ body {
   background: rgba(28,176,246,0.04);
 }
 .vocab-image-card:disabled { cursor: default; }
-.vocab-image-card.correct { border-color: var(--green); background: var(--green-light); box-shadow: 0 3px 0 var(--green-dark); }
+.vocab-image-card.correct { border-color: var(--correct); background: var(--correct-light); box-shadow: 0 3px 0 var(--correct-dark); }
 .vocab-image-card.wrong { border-color: var(--red); background: var(--red-light); box-shadow: 0 3px 0 #cc2222; }
 .vocab-card-emoji { font-size: 50px; line-height: 1.2; display: block; }
 .vocab-card-label { font-size: 14px; font-weight: 800; color: var(--text); margin-top: 6px; }
@@ -1000,7 +1003,7 @@ body {
   border-color: var(--blue); background: rgba(28,176,246,0.06); transform: translateY(-2px);
 }
 .vocab-translation-btn:disabled { cursor: default; }
-.vocab-translation-btn.correct { border-color: var(--green); background: var(--green-light); color: var(--green-dark); box-shadow: 0 3px 0 var(--green-dark); }
+.vocab-translation-btn.correct { border-color: var(--correct); background: var(--correct-light); color: var(--correct-dark); box-shadow: 0 3px 0 var(--correct-dark); }
 .vocab-translation-btn.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); box-shadow: 0 3px 0 #cc2222; }
 
 /* ============================================================ LOGIN SCREEN */
@@ -1161,7 +1164,7 @@ body {
   transition: border-color 0.2s, background 0.2s;
 }
 .quiz-answer-area.answer-correct {
-  border-color: var(--green); background: var(--green-light);
+  border-color: var(--correct); background: var(--correct-light);
 }
 .quiz-answer-area.answer-wrong {
   border-color: var(--red); background: var(--red-light);
