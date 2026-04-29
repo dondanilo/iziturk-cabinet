@@ -573,6 +573,75 @@ const VERBS = WORDS.map(w => ({
   example: w.example ? { greek: w.example.tr, ru: w.example.ru } : undefined
 }));
 
-// Empty stubs for Greek-specific structures not used in Turkish
-const VOCAB_CATEGORIES = [];
-const QUIZ_CATEGORIES  = [];
+// Карточки и Перевод — категории словаря
+const VOCAB_CATEGORIES = [
+  {
+    id: 'verbs_basic', emoji: '📚', title: 'Базовые глаголы',
+    words: WORDS.slice(0, 30).map(w => ({ greek: w.tr, transcription: w.transcription, translation: w.translation }))
+  },
+  {
+    id: 'verbs_action', emoji: '⚡', title: 'Глаголы: действия',
+    words: WORDS.slice(30, 60).map(w => ({ greek: w.tr, transcription: w.transcription, translation: w.translation }))
+  },
+  {
+    id: 'nouns_city', emoji: '🏙️', title: 'Город и жизнь',
+    words: WORDS.slice(60, 90).map(w => ({ greek: w.tr, transcription: w.transcription, translation: w.translation }))
+  },
+  {
+    id: 'adjectives', emoji: '✨', title: 'Прилагательные',
+    words: WORDS.slice(90, 120).map(w => ({ greek: w.tr, transcription: w.transcription, translation: w.translation }))
+  },
+  {
+    id: 'adverbs', emoji: '🔢', title: 'Наречия и вопросы',
+    words: WORDS.slice(120, 150).map(w => ({ greek: w.tr, transcription: w.transcription, translation: w.translation }))
+  }
+];
+
+// Квизы — расставь слова в правильном порядке
+const QUIZ_CATEGORIES = [
+  {
+    id: 'basic_phrases', emoji: '👋', title: 'Базовые фразы',
+    sentences: [
+      { ru: 'Я хочу чай, пожалуйста.',                   words: ['Çay', 'istiyorum,', 'lütfen.'],               diff: 1 },
+      { ru: 'Говорите медленнее, пожалуйста.',            words: ['Yavaş', 'konuşur', 'musunuz?'],               diff: 1 },
+      { ru: 'Сколько это стоит?',                         words: ['Bu', 'ne', 'kadar?'],                         diff: 1 },
+      { ru: 'Где находится остановка автобуса?',          words: ['Otobüs', 'durağı', 'nerede?'],                diff: 1 },
+      { ru: 'Я немного знаю турецкий.',                   words: ['Biraz', 'Türkçe', 'biliyorum.'],              diff: 1 },
+      { ru: 'Большое спасибо!',                           words: ['Çok', 'teşekkür', 'ederim!'],                 diff: 1 },
+      { ru: 'Повторите, пожалуйста.',                     words: ['Tekrar', 'söyler', 'misiniz?'],               diff: 1 },
+      { ru: 'Не понимаю. Объясните иначе.',               words: ['Anlamıyorum.', 'Başka', 'türlü', 'açıklar', 'mısınız?'], diff: 2 },
+      { ru: 'Хорошо. Договорились.',                      words: ['Tamam.', 'Anlaştık.'],                        diff: 1 },
+      { ru: 'Можно кое-что спросить?',                    words: ['Bir', 'şey', 'sorabilir', 'miyim?'],          diff: 2 },
+    ]
+  },
+  {
+    id: 'city_life', emoji: '🏙️', title: 'В городе',
+    sentences: [
+      { ru: 'Я еду на работу на метро.',                  words: ['Metro', 'ile', 'işe', 'gidiyorum.'],          diff: 2 },
+      { ru: 'Вызовите такси, пожалуйста.',                words: ['Taksi', 'çağırır', 'mısınız?'],               diff: 1 },
+      { ru: 'Где ближайшая аптека?',                      words: ['En', 'yakın', 'eczane', 'nerede?'],           diff: 2 },
+      { ru: 'Есть ли здесь Wi-Fi?',                       words: ['Burada', 'Wi-Fi', 'var', 'mı?'],              diff: 1 },
+      { ru: 'Я хочу снять квартиру.',                     words: ['Daire', 'kiralamak', 'istiyorum.'],           diff: 1 },
+      { ru: 'Как добраться до аэропорта?',                words: ['Havalimanına', 'nasıl', 'giderim?'],          diff: 2 },
+      { ru: 'Рынок открыт по субботам.',                  words: ['Pazar', 'cumartesi', 'günleri', 'açık.'],     diff: 2 },
+      { ru: 'Магазин закрыт сегодня.',                    words: ['Market', 'bugün', 'kapalı.'],                 diff: 1 },
+      { ru: 'Остановите здесь, пожалуйста.',              words: ['Burada', 'dur', 'lütfen.'],                   diff: 1 },
+      { ru: 'Метро близко отсюда?',                       words: ['Metro', 'buraya', 'yakın', 'mı?'],            diff: 2 },
+    ]
+  },
+  {
+    id: 'services', emoji: '🏦', title: 'Банк и услуги',
+    sentences: [
+      { ru: 'Есть скидка?',                               words: ['İndirim', 'var', 'mı?'],                      diff: 1 },
+      { ru: 'Я хочу обменять деньги.',                    words: ['Para', 'değiştirmek', 'istiyorum.'],          diff: 1 },
+      { ru: 'Можно заплатить картой?',                    words: ['Kartla', 'ödeyebilir', 'miyim?'],             diff: 2 },
+      { ru: 'Покажите паспорт, пожалуйста.',              words: ['Pasaportunuzu', 'gösterin,', 'lütfen.'],      diff: 1 },
+      { ru: 'Я хочу открыть счёт.',                       words: ['Hesap', 'açmak', 'istiyorum.'],               diff: 1 },
+      { ru: 'Заполните эту форму.',                       words: ['Bu', 'formu', 'doldurun.'],                   diff: 1 },
+      { ru: 'Сколько стоит аренда?',                      words: ['Kira', 'bedeli', 'ne', 'kadar?'],             diff: 1 },
+      { ru: 'Хочу получить ВНЖ.',                         words: ['İkamet', 'izni', 'almak', 'istiyorum.'],      diff: 2 },
+      { ru: 'Мне нужен договор.',                         words: ['Sözleşmeye', 'ihtiyacım', 'var.'],            diff: 2 },
+      { ru: 'Подписал документы.',                        words: ['Belgeleri', 'imzaladım.'],                    diff: 2 },
+    ]
+  }
+];

@@ -102,7 +102,7 @@ function renderUserInfo() {
 
   document.getElementById('user-menu-name').textContent = name;
   document.getElementById('user-menu-email').textContent = email;
-  document.getElementById('app-subtitle').textContent = `Γεια σου, ${name.split(' ')[0]}!`;
+  document.getElementById('app-subtitle').textContent = `Merhaba, ${name.split(' ')[0]}!`;
 }
 
 // ============================================================
@@ -1271,30 +1271,53 @@ function renderScenarioStep(scenario, stepIdx) {
   document.getElementById('scenario-title-bar').textContent = scenario.title;
 
   const container = document.getElementById('scenario-step-container');
+  const nextLabel = stepIdx < total - 1 ? 'Следующий шаг →' : 'Завершить сценарий';
+
+  if (step.type === 'info') {
+    container.innerHTML = `
+      <div class="scenario-info-card">${step.text}</div>
+      <button class="btn-primary" onclick="nextScenarioStep()" style="margin-top:16px">${nextLabel}</button>
+    `;
+    return;
+  }
+
+  if (step.type === 'phrase') {
+    container.innerHTML = `
+      <div class="scenario-situation">Запомни эту фразу:</div>
+      <div class="dialogue-card">
+        <div class="dialogue-greek-wrap">
+          <div class="dialogue-greek">${step.tr}</div>
+          <button class="speak-btn-lg" data-speak="${step.tr.replace(/"/g,'&quot;')}" onclick="speakGreek(this.dataset.speak)">🔊</button>
+        </div>
+        <div class="dialogue-transcription">${step.transcription}</div>
+        <div class="dialogue-translation">${step.ru}</div>
+      </div>
+      <button class="btn-primary" onclick="nextScenarioStep()" style="margin-top:16px">${nextLabel}</button>
+    `;
+    return;
+  }
+
+  // type === 'dialog'
   container.innerHTML = `
-    <div class="scenario-situation">${step.situation}</div>
     <div class="dialogue-card">
       <div class="dialogue-speaker">${step.speaker} говорит:</div>
       <div class="dialogue-greek-wrap">
-        <div class="dialogue-greek">${step.greek}</div>
-        <button class="speak-btn-lg" data-speak="${step.greek.replace(/"/g, '&quot;')}" onclick="speakGreek(this.dataset.speak)">🔊</button>
+        <div class="dialogue-greek">${step.text}</div>
+        <button class="speak-btn-lg" data-speak="${step.text.replace(/"/g,'&quot;')}" onclick="speakGreek(this.dataset.speak)">🔊</button>
       </div>
-      <div class="dialogue-transcription">${step.transcription}</div>
       <div class="dialogue-translation">${step.translation}</div>
     </div>
-    <div class="scenario-question">${step.question}</div>
+    <div class="scenario-question">Выберите правильный ответ:</div>
     <div class="scenario-options" id="scenario-options">
       ${step.options.map((opt, i) => `
         <button class="scenario-option-btn" onclick="selectScenarioAnswer(${i})">
-          <div class="opt-greek">${opt.text}</div>
-          <div class="opt-transcription">🔊 ${opt.transcription}</div>
-          <div class="opt-translation">${opt.translation}</div>
+          <div class="opt-greek">${opt}</div>
         </button>
       `).join('')}
     </div>
     <div class="scenario-feedback" id="scenario-feedback" style="display:none"></div>
     <button class="btn-primary" id="scenario-next-btn" onclick="nextScenarioStep()" style="display:none;margin-top:16px">
-      ${stepIdx < total - 1 ? 'Следующий шаг →' : 'Завершить сценарий'}
+      ${nextLabel}
     </button>
   `;
 }
@@ -1305,25 +1328,26 @@ function selectScenarioAnswer(optionIdx) {
 
   const scenario = SCENARIOS.find(s => s.id === scenarioState.scenarioId);
   const step = scenario.steps[scenarioState.currentStep];
-  const option = step.options[optionIdx];
+  const isCorrect = optionIdx === step.correct;
 
   const buttons = document.querySelectorAll('.scenario-option-btn');
   buttons.forEach((btn, i) => {
     btn.disabled = true;
-    if (step.options[i].correct) btn.classList.add('correct');
+    if (i === step.correct) btn.classList.add('correct');
   });
 
   const feedback = document.getElementById('scenario-feedback');
-  if (option.correct) {
+  if (isCorrect) {
     scenarioState.score++;
     buttons[optionIdx].classList.add('correct');
     feedback.className = 'scenario-feedback correct';
-    feedback.textContent = step.correctFeedback;
+    feedback.textContent = step.explanation ? `✅ Правильно! ${step.explanation}` : '✅ Правильно!';
     playSound('correct');
   } else {
     buttons[optionIdx].classList.add('wrong');
     feedback.className = 'scenario-feedback wrong';
-    feedback.textContent = step.wrongFeedback;
+    const correctText = step.options[step.correct];
+    feedback.textContent = `❌ Правильный ответ: "${correctText}"${step.explanation ? '. ' + step.explanation : ''}`;
     playSound('wrong');
   }
 
@@ -1381,7 +1405,6 @@ function completeScenario(scenario) {
 // VERB TABLE
 // ============================================================
 function renderVerbCards(verbs) {
-  const pronounsRu = ['я', 'ты', 'он/она', 'мы', 'вы', 'они'];
   const container = document.getElementById('verb-table-container');
   document.getElementById('verb-count-badge').textContent = verbs.length;
 
@@ -1390,7 +1413,10 @@ function renderVerbCards(verbs) {
     return;
   }
 
-  container.innerHTML = verbs.map(verb => `
+  container.innerHTML = verbs.map(verb => {
+    const exGreek = verb.example?.greek || verb.example?.tr || '';
+    const exRu    = verb.example?.ru || '';
+    return `
     <div class="verb-card" onclick="this.classList.toggle('expanded')">
       <div class="verb-title">
         <div>
@@ -1400,21 +1426,14 @@ function renderVerbCards(verbs) {
         <span class="verb-translation-badge">${verb.translation}</span>
       </div>
       ${verb.note ? `<div class="verb-note">${verb.note}</div>` : ''}
+      ${exGreek ? `
       <div class="verb-example">
-        <button class="speak-btn" data-speak="${verb.example.greek}" onclick="speakGreek(this.dataset.speak, event)" title="Произнести">🔊</button>
-        <span class="example-greek">${verb.example.greek}</span>
-        <span class="example-ru">${verb.example.ru}</span>
-      </div>
-      <div class="verb-conjugation">
-        ${PRONOUNS.map((p, i) => `
-          <div class="conj-row">
-            <span class="conj-pronoun">${pronounsRu[i]}</span>
-            <span class="conj-form conj-speakable" onclick="speakGreek('${verb.present[p]}', event)" title="Нажми — услышишь">${verb.present[p]}</span>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `).join('');
+        <button class="speak-btn" data-speak="${exGreek.replace(/"/g,'&quot;')}" onclick="speakGreek(this.dataset.speak, event)" title="Произнести">🔊</button>
+        <span class="example-greek">${exGreek}</span>
+        <span class="example-ru">${exRu}</span>
+      </div>` : ''}
+    </div>`;
+  }).join('');
 }
 
 function filterVerbs(query) {
@@ -1423,7 +1442,7 @@ function filterVerbs(query) {
     ? VERBS_ONLY.filter(v =>
         v.infinitive.toLowerCase().includes(q) ||
         v.translation.toLowerCase().includes(q) ||
-        Object.values(v.present).some(f => f.toLowerCase().includes(q))
+        v.transcription.toLowerCase().includes(q)
       )
     : VERBS_ONLY;
   renderVerbCards(filtered);
@@ -1459,13 +1478,13 @@ function showPhrases() {
       ${cat.phrases.map(p => `
         <div class="phrase-card">
           <div class="phrase-top">
-            <div class="phrase-greek" data-speak="${p.greek.replace(/"/g,'&quot;')}"
-                 onclick="speakGreek(this.dataset.speak)">${p.greek}</div>
-            <button class="speak-btn" data-speak="${p.greek.replace(/"/g,'&quot;')}"
+            <div class="phrase-greek" data-speak="${p.tr.replace(/"/g,'&quot;')}"
+                 onclick="speakGreek(this.dataset.speak)">${p.tr}</div>
+            <button class="speak-btn" data-speak="${p.tr.replace(/"/g,'&quot;')}"
                     onclick="speakGreek(this.dataset.speak, event)">🔊</button>
           </div>
           <div class="phrase-transcription">${p.transcription}</div>
-          <div class="phrase-translation">${p.translation}</div>
+          <div class="phrase-translation">${p.ru}</div>
           ${p.note ? `<div class="phrase-note">${p.note}</div>` : ''}
         </div>
       `).join('')}
@@ -1504,9 +1523,9 @@ function searchPhrases(query) {
   PHRASES.forEach(cat => {
     cat.phrases.forEach(p => {
       if (
-        p.greek.toLowerCase().includes(q) ||
+        p.tr.toLowerCase().includes(q) ||
         p.transcription.toLowerCase().includes(q) ||
-        p.translation.toLowerCase().includes(q) ||
+        p.ru.toLowerCase().includes(q) ||
         (p.note && p.note.toLowerCase().includes(q))
       ) {
         matches.push({ ...p, catIcon: cat.icon, catTitle: cat.category, catColor: cat.color });
@@ -1523,13 +1542,13 @@ function searchPhrases(query) {
     <div class="phrase-card">
       <div class="phrase-search-cat" style="color:${p.catColor}">${p.catIcon} ${p.catTitle}</div>
       <div class="phrase-top">
-        <div class="phrase-greek" data-speak="${p.greek.replace(/"/g,'&quot;')}"
-             onclick="speakGreek(this.dataset.speak)">${p.greek}</div>
-        <button class="speak-btn" data-speak="${p.greek.replace(/"/g,'&quot;')}"
+        <div class="phrase-greek" data-speak="${p.tr.replace(/"/g,'&quot;')}"
+             onclick="speakGreek(this.dataset.speak)">${p.tr}</div>
+        <button class="speak-btn" data-speak="${p.tr.replace(/"/g,'&quot;')}"
                 onclick="speakGreek(this.dataset.speak, event)">🔊</button>
       </div>
       <div class="phrase-transcription">${p.transcription}</div>
-      <div class="phrase-translation">${p.translation}</div>
+      <div class="phrase-translation">${p.ru}</div>
       ${p.note ? `<div class="phrase-note">${p.note}</div>` : ''}
     </div>
   `).join('');
@@ -1692,10 +1711,10 @@ function showAudit() {
 }
 
 function getTutorTip() {
-  if (state.lessonsCompleted === 0) return 'Данил, начни с первого урока прямо сейчас! Каждый день — это вклад в гражданство. 🇬🇷';
+  if (state.lessonsCompleted === 0) return 'Начни с первого урока прямо сейчас! Каждый день — это вклад в турецкий. 🇹🇷';
   if (state.streak === 0) return 'Стрик сброшен. Помни: регулярность важнее интенсивности. 10 минут в день > 2 часа раз в неделю.';
-  if (state.scenariosCompleted.length === 0) return 'Попробуй сценарий "Apple Store" или "Собеседование на гражданство" — это практика для реальной жизни!';
-  if (!state.scenariosCompleted.includes('citizenship')) return `Пройдено ${state.scenariosCompleted.length}/${SCENARIOS.length} сценариев. Сценарий "Собеседование на гражданство" — самый важный. Пройди его!`;
+  if (state.scenariosCompleted.length === 0) return 'Попробуй сценарий "В банке" или "ВНЖ / Икамет" — это практика для реальной жизни в Турции!';
+  if (!state.scenariosCompleted.includes('vnzh')) return `Пройдено ${state.scenariosCompleted.length}/${SCENARIOS.length} сценариев. Сценарий "ВНЖ / Икамет" — один из самых важных. Пройди его!`;
   if (state.scenariosCompleted.length < SCENARIOS.length) return `Пройдено ${state.scenariosCompleted.length}/${SCENARIOS.length} сценариев. Попробуй аптеку, банк и ΚΕΠ — реальные ситуации в Греции!`;
   return 'Отлично! Все 8 сценариев пройдены. Следующий шаг — говорить с носителями. Найди грека и практикуй!';
 }
@@ -2163,15 +2182,15 @@ document.addEventListener('DOMContentLoaded', init);
 // ============================================================
 const NEWS_TOPICS = [
   { id: 'all',       label: 'Все',         emoji: '🌐' },
-  { id: 'football',  label: 'Футбол',      emoji: '⚽', query: 'ποδόσφαιρο' },
-  { id: 'politics',  label: 'Политика',    emoji: '🏛️', query: 'πολιτική' },
-  { id: 'history',   label: 'История',     emoji: '📜', query: 'ιστορία' },
-  { id: 'tech',      label: 'Технологии',  emoji: '💻', query: 'τεχνολογία' },
-  { id: 'marketing', label: 'Маркетинг',   emoji: '📊', query: 'μάρκετινγκ' },
-  { id: 'ai',        label: 'ИИ',          emoji: '🤖', query: 'τεχνητή νοημοσύνη' },
-  { id: 'games',     label: 'Игры',        emoji: '🎮', query: 'βιντεοπαίχνια gaming' },
-  { id: 'science',   label: 'Наука',       emoji: '🔬', query: 'επιστήμη' },
-  { id: 'hollywood', label: 'Голливуд',    emoji: '🎬', query: 'χόλιγουντ κινηματογράφος' },
+  { id: 'football',  label: 'Футбол',      emoji: '⚽', query: 'Türkiye futbol Süper Lig' },
+  { id: 'politics',  label: 'Политика',    emoji: '🏛️', query: 'Türkiye siyaset' },
+  { id: 'economy',   label: 'Экономика',   emoji: '💰', query: 'Türkiye ekonomi dolar' },
+  { id: 'tech',      label: 'Технологии',  emoji: '💻', query: 'teknoloji Türkiye' },
+  { id: 'travel',    label: 'Путешествия', emoji: '✈️', query: 'Türkiye turizm tatil' },
+  { id: 'culture',   label: 'Культура',    emoji: '🎭', query: 'Türk kültür sanat' },
+  { id: 'ai',        label: 'ИИ',          emoji: '🤖', query: 'yapay zeka Türkiye' },
+  { id: 'science',   label: 'Наука',       emoji: '🔬', query: 'bilim Türkiye' },
+  { id: 'cinema',    label: 'Кино',        emoji: '🎬', query: 'Türk dizisi film' },
 ];
 
 let newsCache = {};
@@ -2293,13 +2312,13 @@ async function fetchRSS(rssUrl) {
 }
 
 async function fetchNewsForQuery(query, topicId) {
-  const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=el&gl=GR&ceid=GR:el`;
+  const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=tr&gl=TR&ceid=TR:tr`;
   const items = await fetchRSS(rssUrl);
   return items.map(item => ({ ...item, _topicId: topicId }));
 }
 
 async function fetchAllNews() {
-  const rssUrl = `https://news.google.com/rss?hl=el&gl=GR&ceid=GR:el`;
+  const rssUrl = `https://news.google.com/rss?hl=tr&gl=TR&ceid=TR:tr`;
   return await fetchRSS(rssUrl);
 }
 
@@ -2989,67 +3008,49 @@ const BLOG_ARTICLES = [
     section: '📚 С чего начать',
     color: 'green',
     items: [
-      { slug: 'grecheskiy-alfavit',               emoji: '🔤', tag: 'Основы',     title: 'Греческий алфавит за 1 час: таблица с русской транскрипцией' },
-      { slug: 'kak-govorit-po-grecheski',          emoji: '📚', tag: 'С нуля',     title: 'Как научиться говорить по-турецки с нуля: пошаговый план' },
-      { slug: 'grecheskiy-za-30-dney',             emoji: '📅', tag: 'Челлендж',   title: 'Греческий за 30 дней: реальный план с нуля до первого разговора' },
-      { slug: 'intervalnoe-povtorenie-grecheskiy', emoji: '🧠', tag: 'Методика',   title: 'Интервальное повторение: как запоминать туреческие слова навсегда' },
-      { slug: 'grecheskiye-slova-kotoryye-ty-znaesh', emoji: '💡', tag: 'Мотивация', title: 'Греческие слова которые ты уже знаешь — и не подозревал' },
-      { slug: 'grecheskiye-filmy-seriali',         emoji: '🎬', tag: 'Погружение', title: 'Греческие фильмы и сериалы для изучения языка: топ рекомендации' },
+      { slug: 'turetskiy-alfavit',            emoji: '🔤', tag: 'Основы',     title: 'Турецкий алфавит за 1 час: таблица с русской транскрипцией' },
+      { slug: 'kak-govorit-po-turetski',      emoji: '📚', tag: 'С нуля',     title: 'Как говорить по-турецки с нуля: пошаговый план' },
+      { slug: 'turetskiy-za-30-dney',         emoji: '📅', tag: 'Челлендж',   title: 'Турецкий за 30 дней: реальный план с нуля до первого разговора' },
+      { slug: 'slozhno-li-uchit-turetskiy',   emoji: '🧠', tag: 'Методика',   title: 'Сложно ли учить турецкий: честный ответ с примерами' },
+      { slug: 'turetskie-vyrazheniya',        emoji: '💡', tag: 'Мотивация',  title: 'Турецкие выражения которые ты уже понимаешь — и не подозревал' },
+      { slug: 'turetskiy-yazyk-po-serialam',  emoji: '🎬', tag: 'Погружение', title: 'Турецкий по сериалам: топ шоу для изучения языка' },
     ]
   },
   {
-    section: '🇨🇾 Жизнь на Кипре',
+    section: '🇹🇷 Жизнь в Турции',
     color: 'green',
     items: [
-      { slug: 'grecheskiy-na-kipre',          emoji: '🇨🇾', tag: 'Гид',       title: 'Как выучить туреческий на Кипре: реальный опыт русскоязычных' },
-      { slug: 'grecheskiy-frazy-dlya-kipra',  emoji: '💬', tag: 'Фразы',     title: '50 туреческих фраз для жизни на Кипре: банк, ΚΕΠ, аптека, ресторан' },
-      { slug: 'grecheskiy-u-vracha',          emoji: '🏥', tag: 'Срочное',   title: 'Греческий у врача: ГЕСЙ, скорая помощь и аптека' },
-      { slug: 'arenda-kvartiry-kipre',        emoji: '🏠', tag: 'Быт',       title: 'Аренда квартиры на Кипре по-турецки: от звонка до договора' },
-      { slug: 'nalog-kommunalnyye-kipre',     emoji: '📋', tag: 'Документы', title: 'Налоговая и коммунальные услуги на Кипре по-турецки' },
-      { slug: 'dorozhnyye-znaki-grecheskiy',  emoji: '🚗', tag: 'Транспорт', title: 'Дорожные знаки на Кипре и туреческий для водителей' },
-      { slug: 'grecheskiy-na-rabote',         emoji: '💼', tag: 'Карьера',   title: 'Греческий на работе: фразы для офиса и собеседования' },
-      { slug: 'grecheskiy-dlya-detey',        emoji: '👨‍👩‍👧', tag: 'Семья',    title: 'Греческий для детей на Кипре: как помочь ребёнку освоить язык' },
+      { slug: 'kak-snyat-kvartiru-v-turtsii', emoji: '🏠', tag: 'Быт',       title: 'Как снять квартиру в Турции: от звонка до договора по-турецки' },
+      { slug: 'turetskiy-dlya-vnzh',          emoji: '📋', tag: 'Документы', title: 'Турецкий для ВНЖ / Икамет: что нужно знать' },
+      { slug: 'turetskiy-v-banke',            emoji: '🏦', tag: 'Финансы',   title: 'Турецкий в банке: открываем счёт и получаем карту' },
+      { slug: 'turetskiy-v-apteke',           emoji: '🏥', tag: 'Срочное',   title: 'Турецкий в аптеке: как объяснить что болит' },
+      { slug: 'kak-podruzhitsya-s-turkom',    emoji: '🤝', tag: 'Культура',  title: 'Как подружиться с турком: культурный код и первые шаги' },
+      { slug: 'otkryt-biznes-v-turtsii',      emoji: '💼', tag: 'Карьера',   title: 'Открыть бизнес в Турции: документы и первые шаги' },
+      { slug: 'turetskiy-dlya-raboty',        emoji: '🗂️', tag: 'Работа',    title: 'Турецкий для работы: фразы для офиса и собеседования' },
+      { slug: 'turetskiy-v-shkole',           emoji: '👨‍👩‍👧', tag: 'Семья',    title: 'Турецкий в школе: записываем ребёнка и общаемся с учителем' },
     ]
   },
   {
-    section: '📖 Грамматика и словарь',
+    section: '💬 Разговорный турецкий',
     color: 'green',
     items: [
-      { slug: 'grecheskaya-grammatika-dlya-nachinayuschikh', emoji: '📖', tag: 'Грамматика', title: 'Греческая грамматика для русских: что общего и в чём отличия' },
-      { slug: 'proshedshee-vremya-grecheskiy',               emoji: '⏳', tag: 'Грамматика', title: 'Прошедшее время в греческом: простое объяснение для начинающих' },
-      { slug: 'voprositelnyye-slova-grecheskiy',             emoji: '❓', tag: 'Грамматика', title: 'Вопросительные слова в греческом: как задать любой вопрос' },
-      { slug: 'grecheskiye-prilagatelnye',                   emoji: '✨', tag: 'Словарь',    title: 'Топ-50 туреческих прилагательных с примерами и транскрипцией' },
-      { slug: 'grecheskiye-glagoly',                         emoji: '⚡', tag: 'Словарь',    title: '50 самых нужных туреческих глаголов с примерами' },
-      { slug: 'grecheskiy-chislitelnyye',                    emoji: '🔢', tag: 'Словарь',    title: 'Числа на греческом: от 1 до 1000 с произношением' },
-      { slug: 'lozhnye-druzya-grecheskiy',                   emoji: '🪤', tag: 'Ошибки',     title: 'Ложные друзья: туреческие слова которые обманывают русских' },
+      { slug: 'turetskiy-frazy-dlya-turtsii', emoji: '💬', tag: 'Фразы',     title: '50 турецких фраз для жизни в Турции: банк, рынок, аптека, ресторан' },
+      { slug: 'turetskiy-na-rynke',           emoji: '🛍️', tag: 'Покупки',   title: 'Турецкий на рынке: торгуемся и покупаем' },
+      { slug: 'turetskiy-v-restoran',         emoji: '🍽️', tag: 'Ресторан',  title: 'Турецкий в ресторане: делаем заказ и платим' },
+      { slug: 'turetskiy-v-transporte',       emoji: '🚌', tag: 'Транспорт', title: 'Турецкий в транспорте: автобус, метро, такси' },
+      { slug: 'turetskie-prazdniki',          emoji: '🎉', tag: 'Культура',  title: 'Турецкие праздники: что говорить и как себя вести' },
     ]
   },
   {
-    section: '🎭 Культура и жизнь',
-    color: 'green',
-    items: [
-      { slug: 'kiprskoye-narechiye',         emoji: '🗣️', tag: 'Диалект',    title: 'Кипрский диалект vs стандартный туреческий: главные отличия' },
-      { slug: 'grecheskiye-prazdniki-frazy', emoji: '🎉', tag: 'Культура',   title: 'Греческие праздники и традиции: что говорить и как себя вести' },
-      { slug: 'grecheskaya-kukhnya-slovar',  emoji: '🍽️', tag: 'Кухня',      title: 'Греческая кухня: словарь для ресторана и рынка λαϊκή' },
-      { slug: 'grecheskiye-zhesty',          emoji: '🤙', tag: 'Культура',   title: 'Греческие жесты и язык тела: что значит кивок вверх' },
-      { slug: 'grecheskiye-poslovitsy',      emoji: '📜', tag: 'Культура',   title: 'Греческие пословицы с переводом: мудрость тысячелетий' },
-      { slug: 'grecheskiy-sleng',            emoji: '😎', tag: 'Разговорный', title: 'Греческий сленг и неформальная речь: как говорят греки на самом деле' },
-    ]
-  },
-  {
-    section: '🧠 Техники и психология',
+    section: '🧠 Грамматика и техники',
     color: 'purple',
     items: [
-      { slug: 'metod-kato-lomb',                           emoji: '📗', tag: 'Методика',   title: 'Метод Като Ломб: как выучить язык читая книги' },
-      { slug: 'tehnika-shadowing',                         emoji: '🎙️', tag: 'Методика',   title: 'Техника shadowing: повторяй за носителем и заговоришь быстрее' },
-      { slug: 'metod-krashena-comprehensible-input',       emoji: '🌊', tag: 'Наука',      title: 'Метод Крашена: comprehensible input — самый естественный способ учить язык' },
-      { slug: 'strakh-oshibok-pri-izuchenii-yazyka',       emoji: '💪', tag: 'Психология', title: 'Страх ошибок при изучении языка: как перестать бояться говорить' },
-      { slug: '10-minut-v-den-effektivnost',               emoji: '⏱️', tag: 'Наука',      title: '10 минут в день vs 2 часа в неделю: что работает лучше' },
-      { slug: 'kak-sozdat-privychku-uchit-yazyk',          emoji: '🔄', tag: 'Психология', title: 'Как создать привычку учить язык: нейронаука и практика' },
-      { slug: 'metod-pareto-80-20-yazyk',                  emoji: '📊', tag: 'Стратегия',  title: 'Метод 80/20 в изучении языка: что учить в первую очередь' },
-      { slug: 'poligloty-mira-kak-uchat-yazyki',           emoji: '🌍', tag: 'Полиглоты',  title: 'Полиглоты мира: как Бенни Льюис, Като Ломб и другие учат языки' },
-      { slug: 'metod-pogruzheniya-bez-poyezdki',           emoji: '🏠', tag: 'Immersion',  title: 'Метод погружения в язык без поездки за рубеж: полный гид' },
-      { slug: 'sindrom-samozvantsa-pri-izuchenii-yazyka',  emoji: '🦸', tag: 'Психология', title: 'Синдром самозванца при изучении языка: ты лучше чем думаешь' },
+      { slug: 'turetskaya-grammatika',        emoji: '📖', tag: 'Грамматика', title: 'Турецкая грамматика для русских: основы без лишнего' },
+      { slug: 'metod-kato-lomb',              emoji: '📗', tag: 'Методика',   title: 'Метод Като Ломб: как выучить язык читая книги' },
+      { slug: 'tehnika-shadowing',            emoji: '🎙️', tag: 'Методика',   title: 'Техника shadowing: повторяй за носителем и заговоришь быстрее' },
+      { slug: 'metod-krashena-comprehensible-input', emoji: '🌊', tag: 'Наука', title: 'Метод Крашена: comprehensible input — самый естественный способ учить язык' },
+      { slug: 'strakh-oshibok-pri-izuchenii-yazyka', emoji: '💪', tag: 'Психология', title: 'Страх ошибок при изучении языка: как перестать бояться говорить' },
+      { slug: 'metod-pareto-80-20-yazyk',     emoji: '📊', tag: 'Стратегия',  title: 'Метод 80/20 в изучении языка: что учить в первую очередь' },
     ]
   },
 ];
@@ -3120,9 +3121,9 @@ const SPEECH_CATEGORIES = (() => {
         icon: cat.icon || '💬',
         name: 'Фразы: ' + cat.category,
         getWords: () => cat.phrases.map(p => ({
-          greek: p.greek,
+          greek: p.tr,
           transcription: p.transcription,
-          translation: p.translation
+          translation: p.ru
         }))
       });
     });
