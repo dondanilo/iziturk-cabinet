@@ -1798,7 +1798,7 @@ async function submitSupportForm() {
   btn.textContent = 'Отправляем...';
 
   try {
-    const res = await fetch('https://izigreek-webhook.vercel.app/api/contact', {
+    const res = await fetch('https://iziturk-webhook.vercel.app/api/contact', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, phone, subject, message,
