@@ -526,8 +526,8 @@ async function togglePushSetting() {
 }
 
 function showPaywall() {
-  const monthlyUrl = `https://iziturkish.lemonsqueezy.com/checkout/buy/MONTHLY_PRODUCT_ID?checkout[custom][user_id]=${currentUser?.uid || ''}`;
-  const annualUrl = `https://iziturkish.lemonsqueezy.com/checkout/buy/YEARLY_PRODUCT_ID?checkout[custom][user_id]=${currentUser?.uid || ''}`;
+  const monthlyUrl = `https://iziturkish.lemonsqueezy.com/checkout/buy/3a97ea52-6fbd-46ce-9817-96ed90cd2411?checkout[custom][user_id]=${currentUser?.uid || ''}`;
+  const annualUrl = `https://iziturkish.lemonsqueezy.com/checkout/buy/dfa57638-0076-47b8-88cd-26cb4c27807e?checkout[custom][user_id]=${currentUser?.uid || ''}`;
 
   document.getElementById('paywall-monthly-btn').href = monthlyUrl;
   document.getElementById('paywall-annual-btn').href = annualUrl;
