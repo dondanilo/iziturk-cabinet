@@ -2441,7 +2441,7 @@ async function fetchTranslation(text) {
   if (!text) return '';
   if (translationCache[text]) return translationCache[text];
   try {
-    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=el|ru`;
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=tr|ru`;
     const res = await fetch(url);
     const data = await res.json();
     const result = data.responseData && data.responseData.translatedText
@@ -2600,7 +2600,7 @@ function renderVocabWord() {
   document.getElementById('vocab-footer').style.display = 'none';
   document.getElementById('vocab-footer').className = 'lesson-footer';
   const category = VOCAB_CATEGORIES.find(c => c.id === vocabQuizState.categoryId);
-  if (mode === 'image') renderImageQuiz(word, category);
+  if (mode === 'image' && word.emoji) renderImageQuiz(word, category);
   else renderTranslationQuiz(word, category);
 }
 
@@ -3090,7 +3090,7 @@ function renderBlogList() {
 function openBlogArticle(slug, title) {
   const frame = document.getElementById('blog-article-frame');
   const titleEl = document.getElementById('blog-article-title');
-  if (frame) frame.src = `https://iziturkish.com/blog/${slug}.html`;
+  if (frame) frame.src = `https://iziturkish.com/blog/${slug}.html?ref=cabinet`;
   if (titleEl) titleEl.textContent = title;
   showScreen('screen-blog-article');
 }
