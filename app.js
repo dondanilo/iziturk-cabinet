@@ -2561,8 +2561,13 @@ function renderVocabWord() {
   document.getElementById('vocab-footer').style.display = 'none';
   document.getElementById('vocab-footer').className = 'lesson-footer';
   const category = VOCAB_CATEGORIES.find(c => c.id === vocabQuizState.categoryId);
-  if (mode === 'image' && word.emoji) renderImageQuiz(word, category);
-  else renderTranslationQuiz(word, category);
+  if (mode === 'image' && word.emoji) {
+    vocabQuizState.renderedMode = 'image';
+    renderImageQuiz(word, category);
+  } else {
+    vocabQuizState.renderedMode = 'translation';
+    renderTranslationQuiz(word, category);
+  }
 }
 
 function renderImageQuiz(word, category) {
@@ -2633,13 +2638,13 @@ function selectVocabAnswer(optionIdx) {
   if (vocabQuizState.answered) return;
   vocabQuizState.answered = true;
 
-  const { words, currentIndex, options, mode } = vocabQuizState;
+  const { words, currentIndex, options, renderedMode } = vocabQuizState;
   const correctWord = words[currentIndex];
   const selectedWord = options[optionIdx];
   const isCorrect = selectedWord.greek === correctWord.greek;
   const correctIdx = options.findIndex(o => o.greek === correctWord.greek);
 
-  const btnSelector = mode === 'image' ? '.vocab-image-card' : '.vocab-translation-btn';
+  const btnSelector = renderedMode === 'image' ? '.vocab-image-card' : '.vocab-translation-btn';
   const buttons = document.querySelectorAll(btnSelector);
   buttons.forEach(btn => btn.disabled = true);
 
