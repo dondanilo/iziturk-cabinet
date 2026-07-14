@@ -730,15 +730,7 @@
           placeholder="Поделись успехом, мыслью или вопросом... 🇹🇷"
           maxlength="1000"></textarea>
       </div>
-      <div id="composer-image-preview" class="composer-image-preview" style="display:none">
-        <img id="composer-preview-img" src="" alt="">
-        <button class="composer-remove-img" onclick="removeComposerImage()">✕</button>
-      </div>
       <div class="feed-composer-footer">
-        <label class="composer-attach-btn" for="composer-file-input" title="Прикрепить фото">
-          🖼️ Фото
-          <input type="file" id="composer-file-input" accept="image/*" style="display:none" onchange="onComposerFile(this)">
-        </label>
         <span class="composer-char-count" id="composer-char-count"></span>
         <button class="btn-primary composer-submit-btn" id="composer-submit" onclick="submitPost()" disabled>Опубликовать</button>
       </div>

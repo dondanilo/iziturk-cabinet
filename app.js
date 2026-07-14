@@ -274,7 +274,7 @@ function finishOnboarding() {
   setTimeout(setupPushNotifications, 2000);
 }
 
-const VAPID_PUBLIC_KEY = 'BNxge42260O1eI9J5DPz4Wa2O-gKn5d8ScwU2-U1PvmGwtrNMrjxmRn6mIY2Ty4VGhXGsaxg8I7UPMfb5VsrKp4';
+const VAPID_PUBLIC_KEY = 'BLkbTz1djhvLDBZ5njQeRHESFiPNpwyZ5c0CnbFdlefGxrabmPhC8g75rU-umChSp1Cnlsl4S-RSiTL5dFd53Bw';
 
 function urlBase64ToUint8Array(base64) {
   const padding = '='.repeat((4 - base64.length % 4) % 4);
@@ -1820,7 +1820,6 @@ async function submitSupportForm() {
 // SOCIAL FEED
 // ============================================================
 let feedUnsubscribe = null;
-let composerFile = null;
 
 function showFeed() {
   showScreen('screen-feed');
@@ -1854,66 +1853,29 @@ function onComposerInput() {
   const len = ta.value.length;
   counter.textContent = len > 0 ? `${len} / 1000` : '';
   counter.className = 'composer-char-count' + (len >= 1000 ? ' limit' : len >= 800 ? ' warn' : '');
-  btn.disabled = len === 0 && !composerFile;
-}
-
-function onComposerFile(input) {
-  const file = input.files[0];
-  if (!file) return;
-  if (file.size > 10 * 1024 * 1024) {
-    alert('Файл слишком большой. Максимум 10 МБ.');
-    input.value = '';
-    return;
-  }
-  composerFile = file;
-  const reader = new FileReader();
-  reader.onload = e => {
-    document.getElementById('composer-preview-img').src = e.target.result;
-    document.getElementById('composer-image-preview').style.display = 'block';
-  };
-  reader.readAsDataURL(file);
-  document.querySelector('.composer-attach-btn').classList.add('has-image');
-  document.getElementById('composer-submit').disabled = false;
-}
-
-function removeComposerImage() {
-  composerFile = null;
-  document.getElementById('composer-file-input').value = '';
-  document.getElementById('composer-image-preview').style.display = 'none';
-  document.getElementById('composer-preview-img').src = '';
-  document.querySelector('.composer-attach-btn')?.classList.remove('has-image');
-  onComposerInput();
+  btn.disabled = len === 0;
 }
 
 async function submitPost() {
   if (!currentUser) return;
   const ta = document.getElementById('composer-text');
   const text = ta.value.trim();
-  if (!text && !composerFile) return;
+  if (!text) return;
 
   const btn = document.getElementById('composer-submit');
   btn.classList.add('loading');
   btn.textContent = 'Публикуем...';
 
   try {
-    let imageUrl = null;
-    if (composerFile) {
-      const ext = composerFile.name.split('.').pop();
-      const path = `posts/${currentUser.uid}/${Date.now()}.${ext}`;
-      const ref = storage.ref(path);
-      await ref.put(composerFile);
-      imageUrl = await ref.getDownloadURL();
-    }
-
     await db.collection('posts').add({
       uid: currentUser.uid,
       displayName: currentUser.displayName || 'Ученик',
       photoURL: currentUser.photoURL || null,
       type: 'user_post',
       emoji: '✍️',
-      title: text || '',
+      title: text,
       subtitle: '',
-      imageUrl: imageUrl || null,
+      imageUrl: null,
       chips: [],
       likes: [],
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1921,7 +1883,6 @@ async function submitPost() {
 
     // Reset composer
     ta.value = '';
-    removeComposerImage();
     onComposerInput();
   } catch (e) {
     console.error('submitPost error:', e);
@@ -2281,18 +2242,18 @@ async function fetchRSS(rssUrl) {
       }
       return null;
     },
-    // corsproxy.io — updated URL format
-    async () => {
-      const res = await fetchWithTimeout(`https://corsproxy.io/?url=${encoded}`, 8000);
-      const text = await res.text();
-      if (text.trim().startsWith('<')) return text;
-      return null;
-    },
     // allorigins raw endpoint
     async () => {
-      const res = await fetchWithTimeout(`https://api.allorigins.win/raw?url=${encoded}`, 8000);
+      const res = await fetchWithTimeout(`https://api.allorigins.win/raw?url=${encoded}`, 10000);
       if (!res.ok) return null;
       return await res.text();
+    },
+    // allorigins get endpoint (JSON-wrapped, sometimes succeeds when /raw times out)
+    async () => {
+      const res = await fetchWithTimeout(`https://api.allorigins.win/get?url=${encoded}`, 10000);
+      const d = await res.json();
+      if (d.contents && d.contents.trim().startsWith('<')) return d.contents;
+      return null;
     },
   ];
 
@@ -2326,7 +2287,7 @@ function showNewsLoading() {
   document.getElementById('news-feed').innerHTML = `
     <div class="news-loading">
       <div class="news-spinner"></div>
-      <div>Загружаем новости на греческом...</div>
+      <div>Загружаем новости на турецком...</div>
     </div>`;
 }
 
