@@ -147,17 +147,12 @@ const XP_PER_CORRECT = 10;
 const XP_PER_SCENARIO_STEP = 15;
 const EXERCISES_PER_LESSON = 10;
 
-const GREEK_KEYS = [
-  ['α','β','γ','δ','ε','ζ','η','θ'],
-  ['ι','κ','λ','μ','ν','ξ','ο','π'],
-  ['ρ','σ','ς','τ','υ','φ','χ','ψ','ω'],
+// Экранная клавиатура: на обычной раскладке этих символов нет
+const TURKISH_KEYS = [
+  ['ç','ğ','ı','ö','ş','ü'],
+  ['Ç','Ğ','İ','Ö','Ş','Ü'],
 ];
 
-const PRONOUNS = ["εγώ", "εσύ", "αυτός/ή/ό", "εμείς", "εσείς", "αυτοί/ές/ά"];
-const PRONOUNS_RU = {
-  "εγώ": "я", "εσύ": "ты", "αυτός/ή/ό": "он/она/оно",
-  "εμείς": "мы", "εσείς": "вы", "αυτοί/ές/ά": "они"
-};
 // VERBS array in data.js contains mixed data — filter real verbs only
 const VERBS_ONLY = VERBS.filter(v => v.infinitive);
 
@@ -657,71 +652,47 @@ function showHome() {
 // ============================================================
 // LESSON — EXERCISE GENERATION
 // ============================================================
+// В словаре нет таблиц спряжения (поле present), поэтому упражнения строятся
+// на самих словах: узнать перевод, перевести на турецкий, напечатать слово.
 function generateLesson(verbPool = null) {
   const pool = verbPool || buildSrsPool();
   const exercises = [];
   for (let i = 0; i < EXERCISES_PER_LESSON; i++) {
     const verb = pool[Math.floor(Math.random() * pool.length)];
-    const type = Math.floor(Math.random() * 5); // 0-3: multiple choice, 4: typing
-    const pronoun = PRONOUNS[Math.floor(Math.random() * PRONOUNS.length)];
+    const type = Math.floor(Math.random() * 3);
 
     if (type === 0) {
-      const correct = verb.present[pronoun];
-      exercises.push({
-        type: 'conjugation', verb, pronoun,
-        correctAnswer: correct,
-        options: shuffle([correct, ...getWrongForms(verb, correct)])
-      });
-    } else if (type === 1) {
-      const form = verb.present[pronoun];
-      const correct = `${PRONOUNS_RU[pronoun]} ${verb.translation}`;
-      exercises.push({
-        type: 'phrase_meaning', verb,
-        greek: `${pronoun} ${form}`,
-        correctAnswer: correct,
-        options: shuffle([correct, ...getWrongMeanings(verb, pronoun)])
-      });
-    } else if (type === 2) {
       const correct = verb.translation;
-      const wrongs = VERBS_ONLY.filter(v => v.id !== verb.id).sort(() => Math.random() - 0.5).slice(0, 3).map(v => v.translation);
       exercises.push({
         type: 'word_meaning', verb, greek: verb.infinitive,
-        correctAnswer: correct, options: shuffle([correct, ...wrongs])
-      });
-    } else if (type === 3) {
-      const correct = verb.present[pronoun];
-      exercises.push({
-        type: 'translate_to_greek',
-        russian: `${PRONOUNS_RU[pronoun]} ${verb.translation}`,
-        verb, pronoun,
         correctAnswer: correct,
-        options: shuffle([correct, ...getWrongForms(verb, correct)])
+        options: shuffle([correct, ...otherWords(verb, w => w.translation)])
+      });
+    } else if (type === 1) {
+      const correct = verb.infinitive;
+      exercises.push({
+        type: 'translate_to_turkish', verb,
+        russian: verb.translation,
+        correctAnswer: correct,
+        options: shuffle([correct, ...otherWords(verb, w => w.infinitive)])
       });
     } else {
-      // type === 4: typing
-      const correct = verb.present[pronoun];
       exercises.push({
-        type: 'typing',
-        verb, pronoun,
-        correctAnswer: correct
+        type: 'typing', verb,
+        correctAnswer: verb.infinitive
       });
     }
   }
   return exercises;
 }
 
-function getWrongForms(verb, correctForm) {
-  const allForms = Object.values(verb.present).filter(f => f !== correctForm);
-  if (allForms.length < 3) {
-    const extra = VERBS_ONLY.find(v => v.id !== verb.id);
-    allForms.push(...Object.values(extra.present).filter(f => f !== correctForm));
-  }
-  return shuffle(allForms).slice(0, 3);
-}
-
-function getWrongMeanings(verb, pronoun) {
-  const pRu = PRONOUNS_RU[pronoun];
-  return VERBS_ONLY.filter(v => v.id !== verb.id).sort(() => Math.random() - 0.5).slice(0, 3).map(v => `${pRu} ${v.translation}`);
+// Три отвлекающих варианта из других слов словаря
+function otherWords(verb, pick) {
+  return VERBS_ONLY
+    .filter(v => v.id !== verb.id)
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 3)
+    .map(pick);
 }
 
 function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
@@ -764,26 +735,18 @@ function renderExercise() {
   const question = document.getElementById('exercise-question');
   const subtitle = document.getElementById('exercise-subtitle');
 
-  if (ex.type === 'conjugation') {
-    label.textContent = 'Выбери правильную форму';
-    question.textContent = ex.verb.infinitive;
-    subtitle.textContent = `${ex.pronoun}  (${PRONOUNS_RU[ex.pronoun]})  —  ${ex.verb.translation}`;
-  } else if (ex.type === 'phrase_meaning') {
-    label.textContent = 'Что это значит?';
-    question.textContent = ex.greek;
-    subtitle.textContent = '';
-  } else if (ex.type === 'word_meaning') {
-    label.textContent = 'Что значит этот глагол?';
+  if (ex.type === 'word_meaning') {
+    label.textContent = 'Что значит это слово?';
     question.textContent = ex.greek;
     subtitle.textContent = '';
   } else if (ex.type === 'typing') {
-    label.innerHTML = 'Напечатай форму <span class="label-badge">⌨️ сложно</span>';
-    question.textContent = ex.verb.infinitive;
-    subtitle.textContent = `${ex.pronoun}  (${PRONOUNS_RU[ex.pronoun]})  —  ${ex.verb.translation}`;
+    label.innerHTML = 'Напечатай слово по-турецки <span class="label-badge">⌨️ сложно</span>';
+    question.textContent = ex.verb.translation;
+    subtitle.textContent = '';
   } else {
-    label.textContent = 'Переведи на туреческий';
+    label.textContent = 'Переведи на турецкий';
     question.textContent = ex.russian;
-    subtitle.textContent = `${ex.verb.infinitive}  —  ${ex.verb.translation}`;
+    subtitle.textContent = '';
   }
 
   const grid = document.getElementById('options-grid');
@@ -807,18 +770,18 @@ function renderTypingInput() {
   grid.innerHTML = `
     <div class="typing-wrap">
       <input type="text" id="typing-input" class="typing-input"
-             placeholder="Введи форму глагола..."
+             placeholder="Введи слово по-турецки..."
              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
     <div class="greek-keyboard">
-      ${GREEK_KEYS.map(row => `
+      ${TURKISH_KEYS.map(row => `
         <div class="gk-row">
-          ${row.map(ch => `<button class="gk-btn" onclick="insertGreekChar('${ch}')">${ch}</button>`).join('')}
+          ${row.map(ch => `<button class="gk-btn" onclick="insertTurkishChar('${ch}')">${ch}</button>`).join('')}
         </div>
       `).join('')}
       <div class="gk-row gk-bottom-row">
-        <button class="gk-btn gk-space" onclick="insertGreekChar(' ')">·</button>
-        <button class="gk-btn gk-backspace" onclick="insertGreekChar('⌫')">⌫</button>
+        <button class="gk-btn gk-space" onclick="insertTurkishChar(' ')">·</button>
+        <button class="gk-btn gk-backspace" onclick="insertTurkishChar('⌫')">⌫</button>
         <button class="gk-btn gk-submit" onclick="checkTypingAnswer()">✓</button>
       </div>
     </div>
@@ -828,7 +791,7 @@ function renderTypingInput() {
   setTimeout(() => input.focus(), 50);
 }
 
-function insertGreekChar(char) {
+function insertTurkishChar(char) {
   const input = document.getElementById('typing-input');
   if (!input || lessonState.answered) return;
   if (char === '⌫') {
@@ -984,7 +947,15 @@ function completeLesson() {
 }
 
 function randomCorrectPhrase() {
-  return ['Σωστά! Правильно!', 'Μπράβο! Молодец!', 'Τέλεια! Отлично!', 'Ωραία! Прекрасно!', 'Εξαιρετικά!'][Math.floor(Math.random() * 5)];
+  const phrases = [
+    'Doğru! Правильно!',
+    'Bravo! Молодец!',
+    'Harika! Отлично!',
+    'Süper! Прекрасно!',
+    'Mükemmel! Идеально!',
+    'Aynen öyle! Именно так!'
+  ];
+  return phrases[Math.floor(Math.random() * phrases.length)];
 }
 
 // ============================================================
@@ -996,7 +967,7 @@ function speakGreek(text, event) {
   const doSpeak = () => {
     speechSynthesis.cancel();
     const utt = new SpeechSynthesisUtterance(text);
-    utt.lang = 'el-GR';
+    utt.lang = 'tr-TR';
     utt.rate = 0.85;
     utt.pitch = 1;
     speechSynthesis.speak(utt);
@@ -3283,10 +3254,13 @@ function startSpeechRecognition() {
   }
 }
 
-function runSpeechRecognition(SR) {
+// iOS Safari поддерживает не все локали — при language-not-supported падаем на следующую
+const SPEECH_LANG_CHAIN = ['tr-TR', 'tr', 'ru-RU'];
+
+function runSpeechRecognition(SR, langIdx = 0) {
   setSpeechUIState('recording');
   const r = new SR();
-  r.lang = 'el-GR';
+  r.lang = SPEECH_LANG_CHAIN[langIdx] || SPEECH_LANG_CHAIN[0];
   r.continuous = false;
   r.interimResults = false;
   r.maxAlternatives = 6;
@@ -3321,6 +3295,10 @@ function runSpeechRecognition(SR) {
 
   r.onerror = (e) => {
     clearTimeout(timeout);
+    if (e.error === 'language-not-supported' && langIdx < SPEECH_LANG_CHAIN.length - 1) {
+      setTimeout(() => runSpeechRecognition(SR, langIdx + 1), 150);
+      return;
+    }
     if (e.error === 'not-allowed') {
       alert('Нужен доступ к микрофону. Разреши его в настройках браузера и попробуй снова.');
     }
@@ -4529,11 +4507,11 @@ function playListeningTrack(idx) {
   const btn = document.getElementById('listen-play-btn');
   if (speechSynthesis.speaking) { speechSynthesis.cancel(); btn.textContent = '▶ Слушать'; return; }
   const utt = new SpeechSynthesisUtterance(t.text.replace(/\n/g, ' '));
-  utt.lang = 'el-GR';
+  utt.lang = 'tr-TR';
   utt.rate = 0.85;
   const voices = speechSynthesis.getVoices();
-  const elVoice = voices.find(v => v.lang.startsWith('el'));
-  if (elVoice) utt.voice = elVoice;
+  const trVoice = voices.find(v => v.lang.startsWith('tr'));
+  if (trVoice) utt.voice = trVoice;
   utt.onstart = () => { btn.textContent = '⏹ Остановить'; };
   utt.onend = utt.onerror = () => { btn.textContent = '▶ Слушать снова'; };
   speechSynthesis.speak(utt);
