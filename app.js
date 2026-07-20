@@ -436,7 +436,7 @@ function renderProgressLessons() {
   // Motivation
   const motivations = [
     { emoji: '🔥', text: `Ещё ${nextMilestone.n - lessons} уроков до «${nextMilestone.title}»`, sub: 'Ты почти там!' },
-    { emoji: '🧠', text: `${vocabLearned} слов уже в голове`, sub: 'Каждое слово — шаг к гражданству' },
+    { emoji: '🧠', text: `${vocabLearned} слов уже в голове`, sub: 'Каждое слово — шаг к свободному турецкому' },
     { emoji: '⚡', text: `${state.totalXp} XP заработано`, sub: 'Продолжай — каждый урок считается' },
   ];
   const m = motivations[lessons % motivations.length];
@@ -1685,9 +1685,9 @@ function getTutorTip() {
   if (state.lessonsCompleted === 0) return 'Начни с первого урока прямо сейчас! Каждый день — это вклад в турецкий. 🇹🇷';
   if (state.streak === 0) return 'Стрик сброшен. Помни: регулярность важнее интенсивности. 10 минут в день > 2 часа раз в неделю.';
   if (state.scenariosCompleted.length === 0) return 'Попробуй сценарий "В банке" или "ВНЖ / Икамет" — это практика для реальной жизни в Турции!';
-  if (!state.scenariosCompleted.includes('vnzh')) return `Пройдено ${state.scenariosCompleted.length}/${SCENARIOS.length} сценариев. Сценарий "ВНЖ / Икамет" — один из самых важных. Пройди его!`;
-  if (state.scenariosCompleted.length < SCENARIOS.length) return `Пройдено ${state.scenariosCompleted.length}/${SCENARIOS.length} сценариев. Попробуй аптеку, банк и ΚΕΠ — реальные ситуации в Греции!`;
-  return 'Отлично! Все 8 сценариев пройдены. Следующий шаг — говорить с носителями. Найди грека и практикуй!';
+  if (!state.scenariosCompleted.includes('vnj')) return `Пройдено ${state.scenariosCompleted.length}/${SCENARIOS.length} сценариев. Сценарий "ВНЖ / Икамет" — один из самых важных. Пройди его!`;
+  if (state.scenariosCompleted.length < SCENARIOS.length) return `Пройдено ${state.scenariosCompleted.length}/${SCENARIOS.length} сценариев. Попробуй аптеку, банк и налоговую — реальные ситуации в Турции!`;
+  return `Отлично! Все ${SCENARIOS.length} сценариев пройдены. Следующий шаг — говорить с носителями. Найди турка и практикуй!`;
 }
 
 // ============================================================
@@ -2032,7 +2032,7 @@ function buildPostContent(type, data) {
       const stars = data.isPerfect ? '⭐⭐⭐' : data.hearts >= 2 ? '⭐⭐' : '⭐';
       return {
         emoji: '📖',
-        title: 'Прошёл урок греческого',
+        title: 'Прошёл урок турецкого',
         subtitle: `${stars} · ${data.correct}/${data.total} правильно`,
         chips: [
           { text: `+${data.xp} XP`, color: 'green' },
@@ -2432,8 +2432,8 @@ function showVocab(mode) {
   document.getElementById('vocab-screen-title').textContent = mode === 'image' ? 'Карточки' : 'Перевод';
   const descEl = document.getElementById('vocab-screen-desc');
   if (descEl) descEl.textContent = mode === 'image'
-    ? 'Выбери картинку, которая соответствует греческому слову.'
-    : 'Выбери правильный перевод греческого слова.';
+    ? 'Выбери картинку, которая соответствует турецкому слову.'
+    : 'Выбери правильный перевод турецкого слова.';
 
   document.getElementById('vocab-categories-list').innerHTML =
     `<div class="vocab-categories-grid">${VOCAB_CATEGORIES.map(cat => {
@@ -3318,7 +3318,7 @@ function normalizeGreekSpeech(text) {
   return text.toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f\u0345]/g, '')
-    .replace(/[^α-ωa-z]/gi, '')
+    .replace(/[^a-zı]/gi, '')
     .trim();
 }
 
@@ -3444,12 +3444,12 @@ function showExamSection(section) {
   if (section === 'tests')     { startExamMockTest(); return; }
   if (section === 'listening') { startExamListening(); return; }
   const map = {
-    structure: ['🗺️ Как устроен экзамен', getExamStructureHTML],
+    structure: ['🗺️ Как устроена практика', getExamStructureHTML],
     writing:   ['✍️ Письмо',              getExamWritingHTML],
     speaking:  ['🗣️ Говорение',           getExamSpeakingHTML],
     grammar:   ['📚 Грамматика A2/B1',    getExamGrammarHTML],
     tips:      ['💡 Лайфхаки',            getExamTipsHTML],
-    vocab:      ['📖 Экзаменационный словарь', getExamVocabHTML],
+    vocab:      ['📖 Тематический словарь', getExamVocabHTML],
     listening:  ['🎧 Аудирование',            null],
   };
   const [title, fn] = map[section] || map.tips;
@@ -3461,18 +3461,17 @@ function showExamSection(section) {
 function getExamStructureHTML() {
   return `
 <div class="exam-info-banner">
-  <div class="exam-info-row"><span>📍 Организатор</span><strong>Кипрский университет (UCY) + Минобр</strong></div>
-  <div class="exam-info-row"><span>💶 Стоимость</span><strong>€90</strong></div>
-  <div class="exam-info-row"><span>📅 Сессии</span><strong>Январь · Май · Сентябрь</strong></div>
-  <div class="exam-info-row"><span>🎯 Для гражданства</span><strong>A2 (5 лет) · B1 (4 года)</strong></div>
+  <div class="exam-info-row"><span>🎯 Цель</span><strong>Уверенно пользоваться турецким в жизни</strong></div>
+  <div class="exam-info-row"><span>📊 Уровень</span><strong>A2 → B1</strong></div>
+  <div class="exam-info-row"><span>🧩 4 навыка</span><strong>Аудирование · Чтение · Письмо · Говорение</strong></div>
 </div>
 
 <div class="exam-part-card">
   <div class="exam-part-header">
     <span class="exam-part-num">1</span>
-    <div><div class="exam-part-title">🎧 Аудирование</div><div class="exam-part-time">~20 минут · 25 баллов</div></div>
+    <div><div class="exam-part-title">🎧 Аудирование</div><div class="exam-part-time">Понимание речи на слух</div></div>
   </div>
-  <div class="exam-part-desc">3–4 коротких диалога — слушаешь и отвечаешь на вопросы.</div>
+  <div class="exam-part-desc">Короткие диалоги и объявления — слушаешь и отвечаешь на вопросы.</div>
   <div class="exam-part-label">Типы заданий:</div>
   <ul class="exam-part-list">
     <li>Верно / Неверно / Не упоминается</li>
@@ -3487,9 +3486,9 @@ function getExamStructureHTML() {
 <div class="exam-part-card">
   <div class="exam-part-header">
     <span class="exam-part-num">2</span>
-    <div><div class="exam-part-title">📖 Чтение</div><div class="exam-part-time">~30 минут · 25 баллов</div></div>
+    <div><div class="exam-part-title">📖 Чтение</div><div class="exam-part-time">Понимание письменных текстов</div></div>
   </div>
-  <div class="exam-part-desc">2–3 текста (объявления, письма, статьи) — читаешь и отвечаешь.</div>
+  <div class="exam-part-desc">Объявления, письма, статьи — читаешь и отвечаешь на вопросы.</div>
   <div class="exam-part-label">Типы заданий:</div>
   <ul class="exam-part-list">
     <li>Верно / Неверно по тексту</li>
@@ -3505,32 +3504,32 @@ function getExamStructureHTML() {
 <div class="exam-part-card">
   <div class="exam-part-header">
     <span class="exam-part-num">3</span>
-    <div><div class="exam-part-title">✍️ Письмо</div><div class="exam-part-time">~45 минут · 25 баллов</div></div>
+    <div><div class="exam-part-title">✍️ Письмо</div><div class="exam-part-time">80–100 слов на тему</div></div>
   </div>
-  <div class="exam-part-desc"><strong>2 текста по 80–100 слов каждый.</strong> Артикли и предлоги считаются как слова.</div>
-  <div class="exam-part-label">Задание 1 — Письмо другу (неформальное):</div>
+  <div class="exam-part-desc"><strong>Практика двух форматов писем</strong> — неформального и официального.</div>
+  <div class="exam-part-label">Формат 1 — Письмо другу (неформальное):</div>
   <ul class="exam-part-list">
     <li>Рассказать о событии, поездке, покупке</li>
     <li>Описать свой день / выходные / праздник</li>
     <li>Пригласить на встречу</li>
   </ul>
-  <div class="exam-part-label" style="margin-top:8px">Задание 2 — Официальный текст:</div>
+  <div class="exam-part-label" style="margin-top:8px">Формат 2 — Официальный текст:</div>
   <ul class="exam-part-list">
-    <li>Заявление (в школу, муниципалитет)</li>
+    <li>Заявление (в школу, муниципалитет/belediye)</li>
     <li>Запрос информации (о курсах, событии)</li>
     <li>Объявление (продаю / ищу / предлагаю)</li>
   </ul>
-  <div class="exam-part-example">💡 Структура важнее словарного запаса. Выучи шаблоны — и этот блок станет самым лёгким.</div>
+  <div class="exam-part-example">💡 Структура важнее словарного запаса. Выучи шаблоны — и письмо станет самой лёгкой частью.</div>
 </div>
 
 <div class="exam-part-card">
   <div class="exam-part-header">
     <span class="exam-part-num">4</span>
-    <div><div class="exam-part-title">🗣️ Говорение</div><div class="exam-part-time">~15 минут · 25 баллов</div></div>
+    <div><div class="exam-part-title">🗣️ Говорение</div><div class="exam-part-time">Живой разговор</div></div>
   </div>
-  <div class="exam-part-desc">Разговор с экзаменатором и с другим участником. 3 этапа:</div>
+  <div class="exam-part-desc">Практика разговора с собеседником. 3 этапа:</div>
   <ul class="exam-part-list">
-    <li><strong>Представление себя</strong> — кто ты, семья, работа, Кипр</li>
+    <li><strong>Представление себя</strong> — кто ты, семья, работа, жизнь в Турции</li>
     <li><strong>Описание картинки</strong> — что видишь, что происходит</li>
     <li><strong>Диалог с партнёром</strong> — вместе решаете ситуацию</li>
   </ul>
@@ -3538,11 +3537,11 @@ function getExamStructureHTML() {
 </div>
 
 <div class="exam-scoring-block">
-  <div class="exam-scoring-title">⚖️ Проходной балл</div>
-  <div class="exam-scoring-row"><span>Каждая часть</span><span>макс. 25 баллов</span></div>
-  <div class="exam-scoring-row"><span>Итого максимум</span><span>100 баллов</span></div>
-  <div class="exam-scoring-row exam-scoring-pass"><span>Минимум для сдачи</span><span>60 баллов</span></div>
-  <div class="exam-scoring-note">Можно слабо написать одну часть и компенсировать другими.</div>
+  <div class="exam-scoring-title">⚖️ Как заниматься</div>
+  <div class="exam-scoring-row"><span>Каждый навык</span><span>отдельная практика</span></div>
+  <div class="exam-scoring-row"><span>Порядок</span><span>от простого к сложному</span></div>
+  <div class="exam-scoring-row exam-scoring-pass"><span>Регулярность</span><span>важнее интенсивности</span></div>
+  <div class="exam-scoring-note">Слабое место в одном навыке можно компенсировать практикой в других — но лучше подтянуть все четыре.</div>
 </div>`;
 }
 
@@ -3560,12 +3559,12 @@ function getExamSpeakingHTML() {
 <div class="speaking-stage-hint">Экзаменатор задаёт вопросы о тебе. Знай ответы наизусть.</div>
 
 ${[
-  ['Πώς σας λένε;','Как вас зовут?','Με λένε Όλγα Ιβάνοβα.','Меня зовут Ольга Иванова.'],
-  ['Από πού είστε;','Откуда вы?','Είμαι από τη Ρωσία, από τη Μόσχα.','Я из России, из Москвы.'],
-  ['Πόσο καιρό μένετε στην Κύπρο;','Сколько времени живёте на Кипре?','Μένω στην Κύπρο εδώ και τέσσερα χρόνια.','Живу на Кипре уже четыре года.'],
-  ['Τι δουλειά κάνετε;','Кем вы работаете?','Είμαι λογίστρια και δουλεύω σε μια εταιρεία.','Я бухгалтер и работаю в компании.'],
-  ['Έχετε οικογένεια;','У вас есть семья?','Ναι, είμαι παντρεμένη και έχω δύο παιδιά.','Да, я замужем и у меня двое детей.'],
-  ['Γιατί μαθαίνετε ελληνικά;','Почему учите туреческий?','Μαθαίνω ελληνικά για να πάρω την κυπριακή υπηκοότητα και να επικοινωνώ με τους γείτονες.','Учу туреческий чтобы получить кипрское гражданство и общаться с соседями.'],
+  ['Adınız ne?','Как вас зовут?','Adım Olga İvanova.','Меня зовут Ольга Иванова.'],
+  ['Nerelisiniz?','Откуда вы?','Rusyalıyım, Moskova\'dan.','Я из России, из Москвы.'],
+  ['Türkiye\'de ne kadar zamandır yaşıyorsunuz?','Сколько времени живёте в Турции?','Dört yıldır Türkiye\'de yaşıyorum.','Живу в Турции уже четыре года.'],
+  ['Ne iş yapıyorsunuz?','Кем вы работаете?','Muhasebeciyim ve bir şirkette çalışıyorum.','Я бухгалтер и работаю в компании.'],
+  ['Aileniz var mı?','У вас есть семья?','Evet, evliyim ve iki çocuğum var.','Да, я замужем и у меня двое детей.'],
+  ['Neden Türkçe öğreniyorsunuz?','Почему учите турецкий?','İkamet için ve komşularımla konuşabilmek için Türkçe öğreniyorum.','Учу турецкий, чтобы оформить ВНЖ и общаться с соседями.'],
 ].map(([q,qru,a,aru]) => `
   <div class="speaking-qa-card">
     <div class="speaking-q-row">
@@ -3585,13 +3584,13 @@ ${[
 
 <div class="speaking-phrases-card">
 ${[
-  ['Στη φωτογραφία βλέπω...','На фотографии я вижу...'],
-  ['Στο κέντρο της εικόνας υπάρχει...','В центре картинки есть...'],
-  ['Στο βάθος βλέπω...','На заднем плане я вижу...'],
-  ['Νομίζω ότι είναι...','Думаю, что это...'],
-  ['Φαίνεται ότι οι άνθρωποι...','Похоже, что люди...'],
-  ['Ο καιρός φαίνεται...','Погода, кажется,...'],
-  ['Μου αρέσει αυτή η φωτογραφία γιατί...','Мне нравится эта фотография, потому что...'],
+  ['Fotoğrafta ... görüyorum.','На фотографии я вижу...'],
+  ['Resmin ortasında ... var.','В центре картинки есть...'],
+  ['Arka planda ... görüyorum.','На заднем плане я вижу...'],
+  ['Bence bu ...','Думаю, что это...'],
+  ['Görünüşe göre insanlar ...','Похоже, что люди...'],
+  ['Hava durumu ... gibi görünüyor.','Погода, кажется,...'],
+  ['Bu fotoğrafı seviyorum çünkü ...','Мне нравится эта фотография, потому что...'],
 ].map(([gr,ru]) => `
   <div class="speaking-phrase-row">
     <div class="speaking-phrase-left">
@@ -3606,10 +3605,10 @@ ${[
 <div class="speaking-stage-hint">Вместе с другим участником решаете ситуацию. Типичные темы:</div>
 
 ${[
-  ['🍽️ Выбрать ресторан',['Πού θα πάμε για φαγητό;','Τι προτιμάς — ψάρι ή κρέας;','Πόσο κοστίζει περίπου;','Τι ώρα θα συναντηθούμε;']],
-  ['✈️ Спланировать поездку',['Πού θέλεις να πας;','Πότε είσαι ελεύθερος/η;','Πόσες μέρες θα μείνουμε;','Με τι θα πάμε — αεροπλάνο ή πλοίο;']],
-  ['🎉 Организовать праздник',['Πότε κάνουμε το πάρτι;','Ποιους θα καλέσουμε;','Τι φαγητό θα φέρουμε;','Ποιος φέρνει τη μουσική;']],
-  ['🛒 Купить подержанную вещь',['Σε τι κατάσταση είναι;','Πόσο καιρό το έχετε;','Μπορείτε να κατεβάσετε λίγο την τιμή;','Πότε μπορούμε να το παραλάβουμε;']],
+  ['🍽️ Выбрать ресторан',['Nereye yemeğe gidelim?','Balık mı yoksa et mi tercih edersin?','Yaklaşık ne kadar tutar?','Saat kaçta buluşuyoruz?']],
+  ['✈️ Спланировать поездку',['Nereye gitmek istiyorsun?','Ne zaman müsaitsin?','Kaç gün kalacağız?','Ne ile gideceğiz — uçakla mı otobüsle mi?']],
+  ['🎉 Организовать праздник',['Partiyi ne zaman yapıyoruz?','Kimleri davet edeceğiz?','Ne yiyecek getireceğiz?','Müziği kim getiriyor?']],
+  ['🛒 Купить подержанную вещь',['Ne durumda?','Ne zamandır sizde?','Fiyatı biraz düşürebilir misiniz?','Ne zaman teslim alabiliriz?']],
 ].map(([title, phrases]) => `
   <details class="speaking-topic-card">
     <summary>${title}</summary>
@@ -3623,7 +3622,7 @@ ${[
   </details>`).join('')}
 
 <div class="speaking-tip-block">
-  💡 <strong>Если не знаешь слово</strong> — скажи <em onclick="${sp('Πώς λέγεται στα ελληνικά;')}" style="cursor:pointer;color:#9B59B6">«Πώς λέγεται στα ελληνικά;»</em> (Как это по-турецки?) или опиши его другими словами. Экзаменаторы это ценят.
+  💡 <strong>Если не знаешь слово</strong> — скажи <em onclick="${sp('Bu Türkçe nasıl denir?')}" style="cursor:pointer;color:#9B59B6">«Bu Türkçe nasıl denir?»</em> (Как это по-турецки?) или опиши его другими словами. Собеседники это ценят.
 </div>`;
 }
 
@@ -3641,28 +3640,28 @@ function getExamWritingHTML() {
   <div class="writing-template-title">Универсальный шаблон</div>
   <div class="writing-block writing-block-open">
     <div class="writing-block-label">Обращение</div>
-    <div class="writing-greek">Αγαπητή μου Μαρία, / Γεια σου Νίκο!</div>
-    <div class="writing-ru">Дорогая Мария, / Привет Никос!</div>
+    <div class="writing-greek">Sevgili Ayşe, / Selam Mehmet!</div>
+    <div class="writing-ru">Дорогая Айше, / Привет Мехмет!</div>
   </div>
   <div class="writing-block">
     <div class="writing-block-label">Начало — как дела</div>
-    <div class="writing-greek">Πώς είσαι; Ελπίζω να είσαι καλά.</div>
+    <div class="writing-greek">Nasılsın? Umarım iyisindir.</div>
     <div class="writing-ru">Как ты? Надеюсь, у тебя всё хорошо.</div>
   </div>
   <div class="writing-block">
     <div class="writing-block-label">Основная часть (меняется по теме)</div>
-    <div class="writing-greek">Σου γράφω γιατί θέλω να σου πω για...</div>
+    <div class="writing-greek">Sana yazıyorum çünkü ... hakkında anlatmak istiyorum.</div>
     <div class="writing-ru">Пишу тебе, потому что хочу рассказать о...</div>
   </div>
   <div class="writing-block">
     <div class="writing-block-label">Вопрос в конце</div>
-    <div class="writing-greek">Εσύ τι κάνεις; Πώς περνάς;</div>
+    <div class="writing-greek">Sen nasılsın? Vaktini nasıl geçiriyorsun?</div>
     <div class="writing-ru">А ты как? Как проводишь время?</div>
   </div>
   <div class="writing-block writing-block-close">
     <div class="writing-block-label">Закрытие</div>
-    <div class="writing-greek">Τα λέμε σύντομα! Φιλιά πολλά,<br><em>Όλγα</em></div>
-    <div class="writing-ru">Увидимся скоро! Много поцелуев, Ольга</div>
+    <div class="writing-greek">Yakında görüşürüz! Sevgiler,<br><em>Olga</em></div>
+    <div class="writing-ru">Увидимся скоро! С любовью, Ольга</div>
   </div>
 </div>
 
@@ -3671,32 +3670,32 @@ function getExamWritingHTML() {
 <details class="writing-topic">
   <summary>🛍️ Поход в торговый центр</summary>
   <div class="writing-topic-body">
-    <div class="writing-greek">Την Κυριακή πήγα στο εμπορικό κέντρο με την οικογένειά μου. Αγόρασα ένα ζευγάρι παπούτσια και ένα φόρεμα. Τα ρούχα ήταν πολύ φθηνά γιατί είχε εκπτώσεις. Μετά φάγαμε σε ένα εστιατόριο στον τρίτο όροφο. Ήταν πολύ νόστιμο!</div>
-    <div class="writing-ru">В воскресенье я ходила в торговый центр с семьёй. Купила пару обуви и платье. Одежда была очень дешёвой, потому что были скидки. Потом поели в ресторане на третьем этаже. Было очень вкусно!</div>
+    <div class="writing-greek">Pazar günü ailemle alışveriş merkezine gittim. Bir çift ayakkabı ve bir elbise aldım. İndirim vardı, bu yüzden kıyafetler çok ucuzdu. Sonra üçüncü kattaki bir restoranda yemek yedik. Çok lezzetliydi!</div>
+    <div class="writing-ru">В воскресенье я ходила в торговый центр с семьёй. Купила пару обуви и платье. Была скидка, поэтому одежда была очень дешёвой. Потом поели в ресторане на третьем этаже. Было очень вкусно!</div>
   </div>
 </details>
 
 <details class="writing-topic">
   <summary>🎂 День рождения / праздник</summary>
   <div class="writing-topic-body">
-    <div class="writing-greek">Χθες ήταν τα γενέθλιά μου και έκανα ένα μικρό πάρτι στο σπίτι. Ήρθαν οι φίλοι μου και η οικογένειά μου. Φάγαμε, χορέψαμε και γελάσαμε πολύ. Έλαβα πολλά δώρα! Ήταν μια υπέροχη βραδιά που δεν θα ξεχάσω ποτέ.</div>
-    <div class="writing-ru">Вчера был мой день рождения и я устроила небольшую вечеринку дома. Пришли мои друзья и семья. Мы ели, танцевали и много смеялись. Я получила много подарков! Это был прекрасный вечер, который я никогда не забуду.</div>
+    <div class="writing-greek">Dün doğum günümdü ve evde küçük bir parti yaptım. Arkadaşlarım ve ailem geldi. Yedik, dans ettik ve çok güldük. Bir sürü hediye aldım! Asla unutmayacağım harika bir akşamdı.</div>
+    <div class="writing-ru">Вчера был мой день рождения, и я устроила небольшую вечеринку дома. Пришли мои друзья и семья. Мы ели, танцевали и много смеялись. Я получила много подарков! Это был прекрасный вечер, который я никогда не забуду.</div>
   </div>
 </details>
 
 <details class="writing-topic">
   <summary>🏖️ Поездка / отпуск</summary>
   <div class="writing-topic-body">
-    <div class="writing-greek">Τον Αύγουστο πήγα διακοπές στην Ελλάδα με τον άντρα μου. Μείναμε σε ένα ξενοδοχείο κοντά στη θάλασσα. Κάθε μέρα κολυμπούσαμε και επισκεπτόμασταν αρχαία μνημεία. Ο καιρός ήταν υπέροχος. Θέλω να ξαναπάω του χρόνου!</div>
-    <div class="writing-ru">В августе я ездила в отпуск в Грецию с мужем. Мы жили в отеле рядом с морем. Каждый день купались и посещали древние памятники. Погода была прекрасной. Хочу поехать снова в следующем году!</div>
+    <div class="writing-greek">Ağustos ayında eşimle Antalya'ya tatile gittim. Denize yakın bir otelde kaldık. Her gün denize girdik ve eski şehri gezdik. Hava çok güzeldi. Gelecek yıl tekrar gitmek istiyorum!</div>
+    <div class="writing-ru">В августе я ездила в отпуск в Анталью с мужем. Мы жили в отеле рядом с морем. Каждый день купались и гуляли по старому городу. Погода была прекрасной. Хочу поехать снова в следующем году!</div>
   </div>
 </details>
 
 <details class="writing-topic">
   <summary>📅 Приглашение на встречу</summary>
   <div class="writing-topic-body">
-    <div class="writing-greek">Θέλω να σε προσκαλέσω στο σπίτι μου το Σάββατο στις 7 το βράδυ. Θα κάνουμε ένα μικρό τραπέζι με φίλους. Θα υπάρχει φαγητό, μουσική και πολλή διασκέδαση! Μπορείς να έρθεις; Απάντησέ μου σύντομα.</div>
-    <div class="writing-ru">Хочу пригласить тебя к себе в субботу в 7 вечера. Мы устраиваем небольшой ужин с друзьями. Будет еда, музыка и много веселья! Сможешь прийти? Ответь мне скоро.</div>
+    <div class="writing-greek">Seni cumartesi akşamı saat 7'de evime davet etmek istiyorum. Arkadaşlarla küçük bir sofra kuracağız. Yemek, müzik ve çok eğlence olacak! Gelebilir misin? Bana çabuk cevap ver.</div>
+    <div class="writing-ru">Хочу пригласить тебя к себе в субботу в 7 вечера. Мы устраиваем небольшой ужин с друзьями. Будет еда, музыка и много веселья! Сможешь прийти? Ответь мне скорее.</div>
   </div>
 </details>
 
@@ -3707,62 +3706,62 @@ function getExamWritingHTML() {
   <div class="writing-template-title">Универсальный шаблон</div>
   <div class="writing-block writing-block-open">
     <div class="writing-block-label">Кому (адресат)</div>
-    <div class="writing-greek">Προς τη Διεύθυνση / Κύριε Διευθυντή,</div>
-    <div class="writing-ru">В адрес Дирекции / Господин директор,</div>
+    <div class="writing-greek">Sayın Yetkili / Sayın Müdür,</div>
+    <div class="writing-ru">Уважаемый ответственный сотрудник / Уважаемый директор,</div>
   </div>
   <div class="writing-block">
     <div class="writing-block-label">Тема</div>
-    <div class="writing-greek">Θέμα: Αίτηση για πληροφορίες / εγγραφή</div>
+    <div class="writing-greek">Konu: Bilgi talebi / kayıt başvurusu</div>
     <div class="writing-ru">Тема: Запрос информации / заявление о записи</div>
   </div>
   <div class="writing-block">
     <div class="writing-block-label">Представление себя</div>
-    <div class="writing-greek">Ονομάζομαι [όνομα] και μένω στη Λεμεσό εδώ και τρία χρόνια.</div>
-    <div class="writing-ru">Меня зовут [имя] и я живу в Лимасоле уже три года.</div>
+    <div class="writing-greek">Adım [isim], üç yıldır Antalya'da yaşıyorum.</div>
+    <div class="writing-ru">Меня зовут [имя], я живу в Анталье уже три года.</div>
   </div>
   <div class="writing-block">
     <div class="writing-block-label">Цель письма</div>
-    <div class="writing-greek">Σας γράφω γιατί θα ήθελα να μάθω / να εγγραφώ / να ζητήσω...</div>
+    <div class="writing-greek">Size yazıyorum çünkü öğrenmek / kayıt olmak / rica etmek istiyorum...</div>
     <div class="writing-ru">Пишу вам, потому что хотел(а) бы узнать / записаться / попросить...</div>
   </div>
   <div class="writing-block">
     <div class="writing-block-label">Вопрос / просьба</div>
-    <div class="writing-greek">Θα ήθελα να μάθω: Ποιες είναι οι ώρες; Πόσο κοστίζει; Πότε αρχίζει;</div>
+    <div class="writing-greek">Şunları öğrenmek istiyorum: Çalışma saatleri nedir? Ne kadar tutuyor? Ne zaman başlıyor?</div>
     <div class="writing-ru">Хотел(а) бы узнать: Какое расписание? Сколько стоит? Когда начинается?</div>
   </div>
   <div class="writing-block writing-block-close">
     <div class="writing-block-label">Закрытие</div>
-    <div class="writing-greek">Σας ευχαριστώ εκ των προτέρων.<br>Με εκτίμηση,<br><em>[Όνομα Επώνυμο]</em></div>
+    <div class="writing-greek">Şimdiden teşekkür ederim.<br>Saygılarımla,<br><em>[Ad Soyad]</em></div>
     <div class="writing-ru">Заранее благодарю вас.<br>С уважением,<br><em>[Имя Фамилия]</em></div>
   </div>
 </div>
 
 <details class="writing-topic">
-  <summary>📚 Запрос о курсах греческого</summary>
+  <summary>📚 Запрос о курсах турецкого</summary>
   <div class="writing-topic-body">
-    <div class="writing-greek">Σας γράφω γιατί ενδιαφέρομαι να παρακολουθήσω μαθήματα ελληνικής γλώσσας στο κέντρο σας. Θα ήθελα να μάθω: πότε αρχίζουν τα μαθήματα, πόσες φορές την εβδομάδα γίνονται, πόσο κοστίζει η εγγραφή και αν υπάρχουν μαθήματα για επίπεδο Α2.</div>
-    <div class="writing-ru">Пишу вам, потому что хочу посещать курсы греческого языка в вашем центре. Хотел(а) бы узнать: когда начинаются занятия, сколько раз в неделю они проходят, сколько стоит запись и есть ли занятия для уровня A2.</div>
+    <div class="writing-greek">Size yazıyorum çünkü merkezinizde Türkçe kursuna katılmak istiyorum. Şunları öğrenmek istiyorum: dersler ne zaman başlıyor, haftada kaç kez yapılıyor, kayıt ücreti ne kadar ve A2 seviyesi için ders var mı.</div>
+    <div class="writing-ru">Пишу вам, потому что хочу посещать курсы турецкого языка в вашем центре. Хотел(а) бы узнать: когда начинаются занятия, сколько раз в неделю они проходят, сколько стоит запись и есть ли занятия для уровня A2.</div>
   </div>
 </details>
 
 <details class="writing-topic">
   <summary>📢 Объявление (продаю / ищу)</summary>
   <div class="writing-topic-body">
-    <div class="writing-greek">Πωλείται καναπές σε καλή κατάσταση. Χρώμα: γκρι. Διαστάσεις: 2 μέτρα. Τιμή: 150 ευρώ, διαπραγματεύσιμη. Λόγος πώλησης: μετακόμιση. Για πληροφορίες τηλεφωνήστε στο 99-123456. Παράδοση δυνατή.</div>
-    <div class="writing-ru">Продаётся диван в хорошем состоянии. Цвет: серый. Размер: 2 метра. Цена: 150 евро, возможен торг. Причина продажи: переезд. Для информации звоните: 99-123456. Возможна доставка.</div>
+    <div class="writing-greek">İyi durumda koltuk satılıktır. Renk: gri. Ölçüler: 2 metre. Fiyat: 150 dolar, pazarlık payı var. Satış nedeni: taşınma. Bilgi için arayın: 0532-123-4567. Teslimat mümkündür.</div>
+    <div class="writing-ru">Продаётся диван в хорошем состоянии. Цвет: серый. Размер: 2 метра. Цена: 150 долларов, возможен торг. Причина продажи: переезд. Для информации звоните: 0532-123-4567. Возможна доставка.</div>
   </div>
 </details>
 
 <div class="writing-phrases-block">
   <div class="writing-phrases-title">🔑 Ключевые фразы — выучи наизусть</div>
-  <div class="writing-phrase-row"><span class="writing-phrase-gr">Σου γράφω γιατί...</span><span class="writing-phrase-ru">Пишу тебе, потому что...</span></div>
-  <div class="writing-phrase-row"><span class="writing-phrase-gr">Θέλω να σου πω ότι...</span><span class="writing-phrase-ru">Хочу сказать тебе, что...</span></div>
-  <div class="writing-phrase-row"><span class="writing-phrase-gr">Ήταν πολύ ωραία!</span><span class="writing-phrase-ru">Было очень хорошо!</span></div>
-  <div class="writing-phrase-row"><span class="writing-phrase-gr">Χάρηκα πολύ που...</span><span class="writing-phrase-ru">Я очень обрадовалась, что...</span></div>
-  <div class="writing-phrase-row"><span class="writing-phrase-gr">Ανυπομονώ να σε δω!</span><span class="writing-phrase-ru">Не могу дождаться встречи с тобой!</span></div>
-  <div class="writing-phrase-row"><span class="writing-phrase-gr">Σε ευχαριστώ για το γράμμα σου.</span><span class="writing-phrase-ru">Спасибо за твоё письмо.</span></div>
-  <div class="writing-phrase-row"><span class="writing-phrase-gr">Θα ήθελα να μάθω...</span><span class="writing-phrase-ru">Хотел(а) бы узнать...</span></div>
-  <div class="writing-phrase-row"><span class="writing-phrase-gr">Σας ευχαριστώ εκ των προτέρων.</span><span class="writing-phrase-ru">Заранее благодарю вас.</span></div>
+  <div class="writing-phrase-row"><span class="writing-phrase-gr">Sana yazıyorum çünkü...</span><span class="writing-phrase-ru">Пишу тебе, потому что...</span></div>
+  <div class="writing-phrase-row"><span class="writing-phrase-gr">Sana şunu söylemek istiyorum ki...</span><span class="writing-phrase-ru">Хочу сказать тебе, что...</span></div>
+  <div class="writing-phrase-row"><span class="writing-phrase-gr">Çok güzeldi!</span><span class="writing-phrase-ru">Было очень хорошо!</span></div>
+  <div class="writing-phrase-row"><span class="writing-phrase-gr">... olduğuna çok sevindim.</span><span class="writing-phrase-ru">Я очень обрадовалась, что...</span></div>
+  <div class="writing-phrase-row"><span class="writing-phrase-gr">Seni görmek için sabırsızlanıyorum!</span><span class="writing-phrase-ru">Не могу дождаться встречи с тобой!</span></div>
+  <div class="writing-phrase-row"><span class="writing-phrase-gr">Mektubun için teşekkür ederim.</span><span class="writing-phrase-ru">Спасибо за твоё письмо.</span></div>
+  <div class="writing-phrase-row"><span class="writing-phrase-gr">Şunu öğrenmek istiyorum...</span><span class="writing-phrase-ru">Хотел(а) бы узнать...</span></div>
+  <div class="writing-phrase-row"><span class="writing-phrase-gr">Şimdiden teşekkür ederim.</span><span class="writing-phrase-ru">Заранее благодарю вас.</span></div>
 </div>`;
 }
 
@@ -3773,115 +3772,112 @@ function getExamGrammarHTML() {
   <button class="gram-toc-btn" onclick="document.getElementById('gr1').scrollIntoView({behavior:'smooth'})">Настоящее</button>
   <button class="gram-toc-btn" onclick="document.getElementById('gr2').scrollIntoView({behavior:'smooth'})">Прошедшее</button>
   <button class="gram-toc-btn" onclick="document.getElementById('gr3').scrollIntoView({behavior:'smooth'})">Будущее</button>
-  <button class="gram-toc-btn" onclick="document.getElementById('gr4').scrollIntoView({behavior:'smooth'})">Артикли</button>
-  <button class="gram-toc-btn" onclick="document.getElementById('gr5').scrollIntoView({behavior:'smooth'})">Предлоги</button>
+  <button class="gram-toc-btn" onclick="document.getElementById('gr4').scrollIntoView({behavior:'smooth'})">Падежи</button>
+  <button class="gram-toc-btn" onclick="document.getElementById('gr5').scrollIntoView({behavior:'smooth'})">Послелоги</button>
   <button class="gram-toc-btn" onclick="document.getElementById('gr6').scrollIntoView({behavior:'smooth'})">Конструкции</button>
 </div>
 
 <div id="gr1" class="gram-block">
-  <div class="gram-title">🔵 Настоящее время</div>
-  <div class="gram-subtitle">A-спряжение (-ω): κάνω, έχω, θέλω, βλέπω, ξέρω, πηγαίνω</div>
+  <div class="gram-title">🔵 Настоящее время (-Iyor)</div>
+  <div class="gram-subtitle">yapmak (делать), bilmek (знать) — гласная суффикса зависит от последней гласной корня</div>
   <table class="gram-table">
-    <tr><td>εγώ</td><td>κάν<b>ω</b></td><td>έχ<b>ω</b></td></tr>
-    <tr><td>εσύ</td><td>κάν<b>εις</b></td><td>έχ<b>εις</b></td></tr>
-    <tr><td>αυτός/ή</td><td>κάν<b>ει</b></td><td>έχ<b>ει</b></td></tr>
-    <tr><td>εμείς</td><td>κάν<b>ουμε</b></td><td>έχ<b>ουμε</b></td></tr>
-    <tr><td>εσείς</td><td>κάν<b>ετε</b></td><td>έχ<b>ετε</b></td></tr>
-    <tr><td>αυτοί</td><td>κάν<b>ουν</b></td><td>έχ<b>ουν</b></td></tr>
+    <tr><td>ben</td><td>yap<b>ıyorum</b></td><td>bil<b>iyorum</b></td></tr>
+    <tr><td>sen</td><td>yap<b>ıyorsun</b></td><td>bil<b>iyorsun</b></td></tr>
+    <tr><td>o</td><td>yap<b>ıyor</b></td><td>bil<b>iyor</b></td></tr>
+    <tr><td>biz</td><td>yap<b>ıyoruz</b></td><td>bil<b>iyoruz</b></td></tr>
+    <tr><td>siz</td><td>yap<b>ıyorsunuz</b></td><td>bil<b>iyorsunuz</b></td></tr>
+    <tr><td>onlar</td><td>yap<b>ıyorlar</b></td><td>bil<b>iyorlar</b></td></tr>
   </table>
-  <div class="gram-subtitle" style="margin-top:10px">B-спряжение (-ώ/-άω): μιλώ, αγαπώ, περνώ, ρωτώ</div>
+  <div class="gram-subtitle" style="margin-top:10px">Гармония по 4 гласным: a/ı, e/i, o/u, ö/ü</div>
   <table class="gram-table">
-    <tr><td>εγώ</td><td>μιλ<b>ώ</b></td><td>εσύ</td><td>μιλ<b>άς</b></td></tr>
-    <tr><td>αυτός/ή</td><td>μιλ<b>ά</b></td><td>εμείς</td><td>μιλ<b>άμε</b></td></tr>
-    <tr><td>εσείς</td><td>μιλ<b>άτε</b></td><td>αυτοί</td><td>μιλ<b>άνε</b></td></tr>
+    <tr><td>yazmak (писать)</td><td>yaz<b>ıyorum</b></td><td>beklemek (ждать)</td><td>bekl<b>iyorum</b></td></tr>
+    <tr><td>okumak (читать)</td><td>oku<b>yorum</b></td><td>gülmek (смеяться)</td><td>gül<b>üyorum</b></td></tr>
   </table>
-  <div class="gram-subtitle" style="margin-top:10px">Неправильные — учи отдельно</div>
+  <div class="gram-subtitle" style="margin-top:10px">Особые случаи — учи отдельно</div>
   <table class="gram-table">
-    <tr><td>είμαι</td><td>είμαι / είσαι / είναι / είμαστε / είστε / είναι</td></tr>
-    <tr><td>λέω</td><td>λέω / λες / λέει / λέμε / λέτε / λένε</td></tr>
+    <tr><td>istemek (хотеть)</td><td>ist<b>iyorum</b> / ist<b>iyor</b> (гласная e выпадает)</td></tr>
+    <tr><td>etmek (делать)</td><td>ed<b>iyorum</b> / ed<b>iyor</b> (t смягчается в d)</td></tr>
   </table>
 </div>
 
 <div id="gr2" class="gram-block">
-  <div class="gram-title">🟠 Прошедшее время (αόριστος)</div>
+  <div class="gram-title">🟠 Прошедшее время (-DI)</div>
   <div class="gram-tip">💡 Самое важное для письма и говорения — рассказываешь о том, что уже произошло.</div>
-  <div class="gram-subtitle" style="margin-top:8px">Правило для A-глаголов: убери -ω, добавь -α/-ες/-ε/-αμε/-ατε/-αν</div>
+  <div class="gram-subtitle" style="margin-top:8px">Правило: корень + dı/di/du/dü (после глухих согласных p,ç,t,k,s,ş,h,f → tı/ti/tu/tü)</div>
   <table class="gram-table">
     <tr><th>Сейчас</th><th>В прошлом</th><th>Перевод</th></tr>
-    <tr><td>κάνω</td><td>έ<b>καν</b>α</td><td>я сделал(а)</td></tr>
-    <tr><td>αγοράζω</td><td>αγόρ<b>ασ</b>α</td><td>я купил(а)</td></tr>
-    <tr><td>μιλώ</td><td>μίλ<b>ησ</b>α</td><td>я поговорил(а)</td></tr>
-    <tr><td>περνώ</td><td>πέρ<b>ασ</b>α</td><td>я провёл(а) время</td></tr>
-    <tr><td>τρώω</td><td>έφαγα</td><td>я поел(а)</td></tr>
+    <tr><td>yapmak</td><td>yap<b>tı</b>m</td><td>я сделал(а)</td></tr>
+    <tr><td>almak</td><td>al<b>dı</b>m</td><td>я купил(а)</td></tr>
+    <tr><td>konuşmak</td><td>konuş<b>tu</b>m</td><td>я поговорил(а)</td></tr>
+    <tr><td>geçirmek</td><td>geçir<b>di</b>m</td><td>я провёл(а) время</td></tr>
+    <tr><td>yemek</td><td>ye<b>di</b>m</td><td>я поел(а)</td></tr>
   </table>
-  <div class="gram-subtitle" style="margin-top:10px">Неправильные прошедшие — выучи наизусть</div>
+  <div class="gram-subtitle" style="margin-top:10px">Частые глаголы — выучи наизусть</div>
   <table class="gram-table">
-    <tr><th>Глагол</th><th>εγώ</th><th>αυτός/ή</th></tr>
-    <tr><td>πηγαίνω (идти)</td><td><b>πήγα</b></td><td>πήγε</td></tr>
-    <tr><td>έχω (иметь)</td><td><b>είχα</b></td><td>είχε</td></tr>
-    <tr><td>είμαι (быть)</td><td><b>ήμουν</b></td><td>ήταν</td></tr>
-    <tr><td>λέω (говорить)</td><td><b>είπα</b></td><td>είπε</td></tr>
-    <tr><td>βλέπω (видеть)</td><td><b>είδα</b></td><td>είδε</td></tr>
-    <tr><td>έρχομαι (приходить)</td><td><b>ήρθα</b></td><td>ήρθε</td></tr>
-    <tr><td>παίρνω (брать)</td><td><b>πήρα</b></td><td>πήρε</td></tr>
+    <tr><th>Глагол</th><th>ben</th><th>o</th></tr>
+    <tr><td>gitmek (идти)</td><td><b>gittim</b></td><td>gitti</td></tr>
+    <tr><td>gelmek (приходить)</td><td><b>geldim</b></td><td>geldi</td></tr>
+    <tr><td>olmak (быть)</td><td><b>oldum</b></td><td>oldu</td></tr>
+    <tr><td>demek (говорить)</td><td><b>dedim</b></td><td>dedi</td></tr>
+    <tr><td>görmek (видеть)</td><td><b>gördüm</b></td><td>gördü</td></tr>
   </table>
   <div class="gram-example-sent">
-    <div>Χθες <b>πήγα</b> στο σούπερ μάρκετ. — Вчера я ходил(а) в супермаркет.</div>
-    <div>Το Σαββατοκύριακο <b>είδα</b> τους φίλους μου. — На выходных я видел(а) друзей.</div>
-    <div>Η βραδιά <b>ήταν</b> πολύ ωραία! — Вечер был очень приятный!</div>
+    <div>Dün süpermarkete <b>gittim</b>. — Вчера я ходил(а) в супермаркет.</div>
+    <div>Hafta sonu arkadaşlarımı <b>gördüm</b>. — На выходных я видел(а) друзей.</div>
+    <div>Akşam çok güzel<b>di</b>! — Вечер был очень приятный!</div>
   </div>
 </div>
 
 <div id="gr3" class="gram-block">
-  <div class="gram-title">🟢 Будущее время</div>
-  <div class="gram-rule"><b>θα</b> + форма глагола (как настоящее, но с θα)</div>
+  <div class="gram-title">🟢 Будущее время (-ecek/-acak)</div>
+  <div class="gram-rule">корень + <b>ecek/acak</b> + личное окончание</div>
   <table class="gram-table">
     <tr><th>Настоящее</th><th>Будущее</th><th>Перевод</th></tr>
-    <tr><td>πηγαίνω</td><td><b>θα πάω</b></td><td>я пойду / поеду</td></tr>
-    <tr><td>κάνω</td><td><b>θα κάνω</b></td><td>я сделаю</td></tr>
-    <tr><td>αγοράζω</td><td><b>θα αγοράσω</b></td><td>я куплю</td></tr>
-    <tr><td>μιλώ</td><td><b>θα μιλήσω</b></td><td>я поговорю</td></tr>
-    <tr><td>έρχομαι</td><td><b>θα έρθω</b></td><td>я приду</td></tr>
+    <tr><td>gitmek</td><td><b>gideceğim</b></td><td>я пойду / поеду</td></tr>
+    <tr><td>yapmak</td><td><b>yapacağım</b></td><td>я сделаю</td></tr>
+    <tr><td>almak</td><td><b>alacağım</b></td><td>я куплю</td></tr>
+    <tr><td>konuşmak</td><td><b>konuşacağım</b></td><td>я поговорю</td></tr>
+    <tr><td>gelmek</td><td><b>geleceğim</b></td><td>я приду</td></tr>
   </table>
   <div class="gram-example-sent">
-    <div>Αύριο <b>θα πάω</b> στη δουλειά. — Завтра я пойду на работу.</div>
-    <div>Το καλοκαίρι <b>θα ταξιδέψουμε</b> στην Ελλάδα. — Летом мы поедем в Грецию.</div>
+    <div>Yarın işe <b>gideceğim</b>. — Завтра я пойду на работу.</div>
+    <div>Yazın Türkiye'ye <b>seyahat edeceğiz</b>. — Летом мы поедем в Турцию.</div>
   </div>
-  <div class="gram-tip">💡 θα + δεν = δεν θα: Δεν θα πάω — я не пойду</div>
+  <div class="gram-tip">💡 Отрицание — не отдельное слово, а суффикс -me-/-ma- перед -ecek/-acak: git<b>me</b>yeceğim — я не пойду</div>
 </div>
 
 <div id="gr4" class="gram-block">
-  <div class="gram-title">🔷 Артикли и падежи</div>
-  <div class="gram-subtitle">Именительный (кто? что?) — субъект предложения</div>
+  <div class="gram-title">🔷 Падежи существительных</div>
+  <div class="gram-subtitle">В турецком нет артиклей — вместо них падежные суффиксы</div>
   <table class="gram-table">
-    <tr><th></th><th>м.р.</th><th>ж.р.</th><th>ср.р.</th></tr>
-    <tr><td>определённый</td><td><b>ο</b> φίλος</td><td><b>η</b> φίλη</td><td><b>το</b> παιδί</td></tr>
-    <tr><td>неопределённый</td><td><b>ένας</b> φίλος</td><td><b>μια</b> φίλη</td><td><b>ένα</b> παιδί</td></tr>
+    <tr><th>Падеж</th><th>Суффикс</th><th>Пример</th></tr>
+    <tr><td>Именительный</td><td>—</td><td><b>ev</b> — дом</td></tr>
+    <tr><td>Винительный (кого? что?)</td><td>-ı/-i/-u/-ü</td><td>ev<b>i</b> gördüm — я увидел дом</td></tr>
+    <tr><td>Дательный (куда?)</td><td>-a/-e</td><td>ev<b>e</b> gidiyorum — иду домой</td></tr>
   </table>
-  <div class="gram-subtitle" style="margin-top:10px">Винительный (кого? что?) — объект действия</div>
-  <table class="gram-table">
-    <tr><th></th><th>м.р.</th><th>ж.р.</th><th>ср.р.</th></tr>
-    <tr><td>определённый</td><td><b>τον</b> φίλο</td><td><b>την</b> φίλη</td><td><b>το</b> παιδί</td></tr>
-    <tr><td>неопределённый</td><td><b>έναν</b> φίλο</td><td><b>μια</b> φίλη</td><td><b>ένα</b> παιδί</td></tr>
+  <table class="gram-table" style="margin-top:6px">
+    <tr><th>Падеж</th><th>Суффикс</th><th>Пример</th></tr>
+    <tr><td>Местный (где?)</td><td>-da/-de</td><td>ev<b>de</b> — дома</td></tr>
+    <tr><td>Исходный (откуда?)</td><td>-dan/-den</td><td>ev<b>den</b> — из дома</td></tr>
   </table>
   <div class="gram-example-sent">
-    <div><b>Ο</b> φίλος μου μένει στη Λεμεσό. — Мой друг живёт в Лимасоле.</div>
-    <div>Βλέπω <b>τον</b> φίλο μου κάθε μέρα. — Я вижу своего друга каждый день.</div>
+    <div>Arkadaşım Antalya<b>'da</b> yaşıyor. — Мой друг живёт в Анталье.</div>
+    <div>Arkadaşım<b>ı</b> her gün görüyorum. — Я вижу своего друга каждый день.</div>
   </div>
-  <div class="gram-tip">💡 Среднего рода артикль <b>το</b> не меняется никогда.</div>
+  <div class="gram-tip">💡 Артиклей вроде «a/the» в турецком нет — их роль берут на себя падежные суффиксы.</div>
 </div>
 
 <div id="gr5" class="gram-block">
-  <div class="gram-title">🟡 Предлоги + артикли (слияние)</div>
-  <div class="gram-subtitle">σε + τον/την/το → στον / στην / στο</div>
+  <div class="gram-title">🟡 Послелоги</div>
+  <div class="gram-subtitle">В турецком служебные слова стоят ПОСЛЕ существительного</div>
   <table class="gram-table">
-    <tr><th>Предлог</th><th>Значение</th><th>Пример</th></tr>
-    <tr><td><b>στο / στη / στον</b></td><td>в, на, к</td><td>στο σπίτι — дома, στην Κύπρο — на Кипре</td></tr>
-    <tr><td><b>από</b></td><td>из, от, с</td><td>από την Ελλάδα — из Греции</td></tr>
-    <tr><td><b>με</b></td><td>с (вместе)</td><td>με τον άντρα μου — с мужем</td></tr>
-    <tr><td><b>για</b></td><td>для, о, про</td><td>για τη δουλειά — о работе</td></tr>
-    <tr><td><b>μετά</b></td><td>после, потом</td><td>μετά το φαγητό — после еды</td></tr>
-    <tr><td><b>πριν</b></td><td>до, перед</td><td>πριν από δύο χρόνια — два года назад</td></tr>
+    <tr><th>Послелог</th><th>Значение</th><th>Пример</th></tr>
+    <tr><td><b>-de / -da</b></td><td>в, на</td><td>evde — дома, Türkiye'de — в Турции</td></tr>
+    <tr><td><b>-den / -dan</b></td><td>из, от, с</td><td>Rusya'dan — из России</td></tr>
+    <tr><td><b>ile / -yle</b></td><td>с (вместе)</td><td>eşimle — с мужем/женой</td></tr>
+    <tr><td><b>için</b></td><td>для, из-за</td><td>iş için — для работы</td></tr>
+    <tr><td><b>sonra</b></td><td>после, потом</td><td>yemekten sonra — после еды</td></tr>
+    <tr><td><b>önce</b></td><td>до, перед</td><td>iki yıl önce — два года назад</td></tr>
   </table>
 </div>
 
@@ -3889,67 +3885,67 @@ function getExamGrammarHTML() {
   <div class="gram-title">🟣 Ключевые конструкции A2</div>
   <table class="gram-table">
     <tr><th>Конструкция</th><th>Пример</th><th>Перевод</th></tr>
-    <tr><td><b>θέλω να</b> + гл.</td><td>Θέλω να πάω σπίτι.</td><td>Хочу пойти домой.</td></tr>
-    <tr><td><b>μπορώ να</b> + гл.</td><td>Μπορώ να σε βοηθήσω;</td><td>Могу тебе помочь?</td></tr>
-    <tr><td><b>πρέπει να</b> + гл.</td><td>Πρέπει να μελετώ.</td><td>Нужно учиться.</td></tr>
-    <tr><td><b>δεν</b> + гл.</td><td>Δεν καταλαβαίνω.</td><td>Я не понимаю.</td></tr>
-    <tr><td><b>γιατί</b> / <b>επειδή</b></td><td>Πήγα γιατί ήθελα...</td><td>Пошёл(а), потому что...</td></tr>
-    <tr><td><b>όταν</b></td><td>Όταν ήμουν μικρή...</td><td>Когда я была маленькой...</td></tr>
+    <tr><td><b>-mak/-mek istemek</b></td><td>Eve gitmek istiyorum.</td><td>Хочу пойти домой.</td></tr>
+    <tr><td><b>-abilmek</b> (мочь)</td><td>Sana yardım edebilir miyim?</td><td>Могу тебе помочь?</td></tr>
+    <tr><td><b>lazım / gerekiyor</b></td><td>Çalışmam lazım.</td><td>Мне нужно работать.</td></tr>
+    <tr><td><b>değil</b> (не)</td><td>Bu doğru değil.</td><td>Это не так.</td></tr>
+    <tr><td><b>çünkü</b></td><td>Gittim çünkü istedim...</td><td>Пошёл(а), потому что хотел(а)...</td></tr>
+    <tr><td><b>-ken</b> (когда)</td><td>Küçükken...</td><td>Когда я была маленькой...</td></tr>
   </table>
-  <div class="gram-tip">💡 μπορώ να + θέλω να + πρέπει να — три конструкции которые покрывают 70% разговорных ситуаций на экзамене.</div>
+  <div class="gram-tip">💡 istemek + -abilmek + lazım — три конструкции, которые покрывают большую часть повседневных разговорных ситуаций.</div>
 </div>`;
 }
 
 function getExamTipsHTML() {
   return `
-<div class="tips-intro">Практические советы от тех, кто уже сдал экзамен на гражданство.</div>
+<div class="tips-intro">Практические советы от тех, кто уже прошёл этот формат практики.</div>
 <div class="tip-item">
   <div class="tip-num">1</div>
   <div class="tip-body">
-    <div class="tip-title">Структура экзамена A2/B1</div>
-    <div class="tip-text">4 части: аудирование (слушать и отвечать), чтение (понять текст), письмо (написать письмо/описание), говорение (диалог с экзаменатором). Каждая часть оценивается отдельно.</div>
+    <div class="tip-title">Структура практики A2/B1</div>
+    <div class="tip-text">4 части: аудирование (слушать и отвечать), чтение (понять текст), письмо (написать письмо/описание), говорение (диалог с собеседником). Каждую часть тренируй отдельно.</div>
   </div>
 </div>
 <div class="tip-item">
   <div class="tip-num">2</div>
   <div class="tip-body">
-    <div class="tip-title">Уровень для гражданства</div>
-    <div class="tip-text">Для гражданства Греции/Кипра нужен B1. Если знаешь A2 — пробуй B1, экзаменаторы ценят старание. Сертификат признаётся при 6+ годах проживания.</div>
+    <div class="tip-title">Какой уровень выбрать</div>
+    <div class="tip-text">Для уверенной жизни в Турции достаточно A2, для работы и учёбы — B1. Если легко даётся A2 — пробуй B1, регулярная практика важнее спешки.</div>
   </div>
 </div>
 <div class="tip-item">
   <div class="tip-num">3</div>
   <div class="tip-body">
-    <div class="tip-title">Приоритет: спряжение εγώ/εσύ/αυτός</div>
-    <div class="tip-text">90% разговора — три лица: я, ты, он/она. Выучи спряжение 30 ключевых глаголов для этих лиц — и ты уже можешь строить предложения.</div>
+    <div class="tip-title">Приоритет: спряжение ben/sen/o</div>
+    <div class="tip-text">90% разговора — три лица: я, ты, он/она. Выучи спряжение 30 ключевых глаголов для этих лиц (настоящее, прошедшее, будущее) — и ты уже можешь строить предложения.</div>
   </div>
 </div>
 <div class="tip-item">
   <div class="tip-num">4</div>
   <div class="tip-body">
-    <div class="tip-title">θέλω να + глагол — твоё главное оружие</div>
-    <div class="tip-text">«Я хочу [что-то сделать]» — эта конструкция работает в магазине, банке, у врача, в КЕП. Выучи θέλω να + базовые глаголы и ты можешь попросить что угодно.</div>
+    <div class="tip-title">istemek + глагол — твоё главное оружие</div>
+    <div class="tip-text">«Я хочу [что-то сделать]» — эта конструкция работает в магазине, банке, у врача, в налоговой. Выучи istemek + базовые глаголы (gitmek, almak, bilmek) и ты можешь попросить что угодно.</div>
   </div>
 </div>
 <div class="tip-item">
   <div class="tip-num">5</div>
   <div class="tip-body">
     <div class="tip-title">Аудирование: слушай фоново</div>
-    <div class="tip-text">Включай греческое радио (ERT) или новости фоном дома. Не пытайся всё понять — просто привыкай к ритму языка. 30 минут в день = +20% на аудировании через месяц.</div>
+    <div class="tip-text">Включай турецкое радио (TRT) или подкасты на турецком фоном дома. Не пытайся всё понять — просто привыкай к ритму языка. 30 минут в день = +20% на аудировании через месяц.</div>
   </div>
 </div>
 <div class="tip-item">
   <div class="tip-num">6</div>
   <div class="tip-body">
     <div class="tip-title">Письмо: 3 шаблона покрывают всё</div>
-    <div class="tip-text">Выучи 3 шаблона письма: 1) представление себя и семьи, 2) описание своего дня/распорядка, 3) что тебе нравится/не нравится в Греции/Кипре. Экзаменаторы дают именно эти темы.</div>
+    <div class="tip-text">Выучи 3 шаблона письма: 1) представление себя и семьи, 2) описание своего дня/распорядка, 3) что тебе нравится/не нравится в Турции. Именно эти темы встречаются чаще всего.</div>
   </div>
 </div>
 <div class="tip-item">
   <div class="tip-num">7</div>
   <div class="tip-body">
     <div class="tip-title">Говорение: медленно и уверенно</div>
-    <div class="tip-text">Говори медленно — экзаменатор ставит очки за правильность, не за скорость. Простое предложение, сказанное без ошибок, лучше сложного с запинками.</div>
+    <div class="tip-text">Говори медленно — собеседник ценит правильность, а не скорость. Простое предложение, сказанное без ошибок, лучше сложного с запинками.</div>
   </div>
 </div>
 <div class="tip-item">
@@ -3969,8 +3965,8 @@ function getExamTipsHTML() {
 <div class="tip-item">
   <div class="tip-num">10</div>
   <div class="tip-body">
-    <div class="tip-title">За месяц до экзамена</div>
-    <div class="tip-text">Пройди все сценарии (раздел «Сценарии»), порепетируй диалоги вслух, сделай пробный письменный текст 100–150 слов. Попроси грека-друга проверить или запишись на пробный урок.</div>
+    <div class="tip-title">Финальная проверка навыков</div>
+    <div class="tip-text">Пройди все сценарии (раздел «Сценарии»), порепетируй диалоги вслух, сделай пробный письменный текст 100–150 слов. Попроси турка-друга проверить или запишись на пробный урок.</div>
   </div>
 </div>`;
 }
@@ -3981,160 +3977,160 @@ function getExamVocabHTML() {
       id: 'v1', title: 'Личные данные', emoji: '🪪',
       hint: 'Представление себя — часть Speaking и Writing',
       words: [
-        ['το όνομα', 'то онома', 'имя'],
-        ['το επώνυμο', 'то эпоними', 'фамилия'],
-        ['η ηλικία', 'и иликиа', 'возраст'],
-        ['η υπηκοότητα', 'и ипикоотита', 'гражданство'],
-        ['η διεύθυνση', 'и диэвсинси', 'адрес'],
-        ['ο αριθμός τηλεφώνου', 'о аристмос тилэфону', 'номер телефона'],
-        ['η επαγγελματική εμπειρία', 'и эпангэлматики эмпириа', 'опыт работы'],
-        ['παντρεμένος/η', 'пандрэмэнос/и', 'женатый/замужняя'],
-        ['άγαμος/η', 'агамос/и', 'холостой/незамужняя'],
-        ['έχω παιδιά', 'эхо пэдья', 'у меня есть дети'],
+        ['isim', 'и́сим', 'имя'],
+        ['soyadı', 'соядьı́', 'фамилия'],
+        ['yaş', 'яш', 'возраст'],
+        ['ikamet izni', 'икамэ́т изни́', 'вид на жительство'],
+        ['adres', 'адрэ́с', 'адрес'],
+        ['telefon numarası', 'тэлефо́н нумарасы́', 'номер телефона'],
+        ['iş tecrübesi', 'иш тэджрюбэси́', 'опыт работы'],
+        ['evli', 'эвли́', 'женатый/замужняя'],
+        ['bekar', 'бэка́р', 'холостой/незамужняя'],
+        ['çocuğum var', 'чоджу́ум вар', 'у меня есть дети'],
       ]
     },
     {
       id: 'v2', title: 'Семья', emoji: '👨‍👩‍👧',
       hint: 'Часто встречается в темах Speaking',
       words: [
-        ['ο σύζυγος', 'о сизигос', 'супруг'],
-        ['η σύζυγος', 'и сизигос', 'супруга'],
-        ['τα παιδιά', 'та пэдья', 'дети'],
-        ['ο γιος', 'о йос', 'сын'],
-        ['η κόρη', 'и кори', 'дочь'],
-        ['οι γονείς', 'и гонис', 'родители'],
-        ['ο παππούς', 'о папус', 'дедушка'],
-        ['η γιαγιά', 'и яя', 'бабушка'],
-        ['ο αδελφός', 'о адэлфос', 'брат'],
-        ['η αδελφή', 'и адэлфи', 'сестра'],
+        ['koca', 'коджа́', 'муж'],
+        ['karı / eş', 'кары́ / эш', 'жена/супруга'],
+        ['çocuklar', 'чоджукла́р', 'дети'],
+        ['oğul', 'о́ул', 'сын'],
+        ['kız', 'кыз', 'дочь'],
+        ['anne baba', 'а́ннэ баба́', 'родители'],
+        ['dede', 'дэдэ́', 'дедушка'],
+        ['babaanne', 'бабаа́ннэ', 'бабушка'],
+        ['erkek kardeş', 'эркэ́к кардэ́ш', 'брат'],
+        ['kız kardeş', 'кыз кардэ́ш', 'сестра'],
       ]
     },
     {
       id: 'v3', title: 'Работа и профессия', emoji: '💼',
       hint: 'Ключевая тема Writing Level A2–B1',
       words: [
-        ['η δουλειά / η εργασία', 'и дуля / и эргасиа', 'работа'],
-        ['ο εργοδότης', 'о эргодотис', 'работодатель'],
-        ['ο μισθός', 'о мистос', 'зарплата'],
-        ['το ωράριο', 'то орарьо', 'рабочее расписание'],
-        ['η άδεια', 'и адья', 'отпуск / лицензия'],
-        ['ο γιατρός', 'о ятрос', 'врач'],
-        ['ο δάσκαλος', 'о даскалос', 'учитель'],
-        ['ο μηχανικός', 'о миханикос', 'инженер/механик'],
-        ['ο λογιστής', 'о лойистис', 'бухгалтер'],
-        ['ο υπάλληλος', 'о ипалилос', 'сотрудник/служащий'],
+        ['iş / çalışma', 'иш / чалышма́', 'работа'],
+        ['işveren', 'ишвэрэ́н', 'работодатель'],
+        ['maaş', 'мааш', 'зарплата'],
+        ['çalışma saatleri', 'чалышма́ саатлэри́', 'рабочее расписание'],
+        ['izin', 'изи́н', 'отпуск'],
+        ['doktor', 'докто́р', 'врач'],
+        ['öğretmen', 'ёйрэтмэ́н', 'учитель'],
+        ['mühendis', 'мюхэнди́с', 'инженер'],
+        ['muhasebeci', 'мухасэбэджи́', 'бухгалтер'],
+        ['çalışan / memur', 'чалыша́н / мэму́р', 'сотрудник/служащий'],
       ]
     },
     {
       id: 'v4', title: 'Дом и жильё', emoji: '🏠',
-      hint: 'Тема письма и диалогов на экзамене',
+      hint: 'Тема письма и диалогов о повседневной жизни',
       words: [
-        ['το διαμέρισμα', 'то диамэризма', 'квартира'],
-        ['το σπίτι', 'то спити', 'дом'],
-        ['το ενοίκιο', 'то эники о', 'аренда'],
-        ['ο ιδιοκτήτης', 'о идиоктитис', 'хозяин/собственник'],
-        ['το υπνοδωμάτιο', 'то ипнодоматьо', 'спальня'],
-        ['η κουζίνα', 'и кузина', 'кухня'],
-        ['το μπάνιο', 'то бано', 'ванная'],
-        ['το σαλόνι', 'то салони', 'гостиная'],
-        ['ο όροφος', 'о орофос', 'этаж'],
-        ['ο γείτονας', 'о итонас', 'сосед'],
+        ['daire', 'даирэ́', 'квартира'],
+        ['ev', 'эв', 'дом'],
+        ['kira', 'кира́', 'аренда'],
+        ['ev sahibi', 'эв сахиби́', 'хозяин/собственник'],
+        ['yatak odası', 'ята́к одасы́', 'спальня'],
+        ['mutfak', 'мутфа́к', 'кухня'],
+        ['banyo', 'ба́ньо', 'ванная'],
+        ['salon', 'сало́н', 'гостиная'],
+        ['kat', 'кат', 'этаж'],
+        ['komşu', 'комшу́', 'сосед'],
       ]
     },
     {
       id: 'v5', title: 'Здоровье и медицина', emoji: '🏥',
       hint: 'Диалог «у врача» — типичный Speaking сценарий',
       words: [
-        ['ο πόνος', 'о понос', 'боль'],
-        ['πονάει', 'понаи', 'болит'],
-        ['ο πυρετός', 'о пирэтос', 'температура/жар'],
-        ['το φάρμακο', 'то фармако', 'лекарство'],
-        ['η συνταγή', 'и синдайи', 'рецепт'],
-        ['το νοσοκομείο', 'то носокомио', 'больница'],
-        ['το ιατρείο', 'то иатрио', 'кабинет врача'],
-        ['το ραντεβού', 'то рандэву', 'запись/встреча'],
-        ['αδιαθεσία', 'адиасэсиа', 'недомогание'],
-        ['αλλεργία', 'алэрйиа', 'аллергия'],
+        ['ağrı', 'аары́', 'боль'],
+        ['ağrıyor', 'аары́ёр', 'болит'],
+        ['ateş', 'атэ́ш', 'температура/жар'],
+        ['ilaç', 'ила́ч', 'лекарство'],
+        ['reçete', 'рэчэтэ́', 'рецепт'],
+        ['hastane', 'хастанэ́', 'больница'],
+        ['muayenehane', 'муайэнэханэ́', 'кабинет врача'],
+        ['randevu', 'рандэву́', 'запись/встреча'],
+        ['rahatsızlık', 'рахатсызлы́к', 'недомогание'],
+        ['alerji', 'алэржи́', 'аллергия'],
       ]
     },
     {
       id: 'v6', title: 'Транспорт и город', emoji: '🚌',
       hint: 'Ориентация в городе — стандартная тема Speaking',
       words: [
-        ['το λεωφορείο', 'то лэофорио', 'автобус'],
-        ['το ταξί', 'то такси', 'такси'],
-        ['ο σταθμός', 'о стасмос', 'станция/остановка'],
-        ['η στάση', 'и стаси', 'остановка'],
-        ['το εισιτήριο', 'то исытирьо', 'билет'],
-        ['το δρόμος', 'о дромос', 'дорога/улица'],
-        ['ευθεία', 'эфсиа', 'прямо'],
-        ['αριστερά', 'аристэра', 'налево'],
-        ['δεξιά', 'дэксья', 'направо'],
-        ['κοντά / μακριά', 'конда / макрья', 'близко / далеко'],
+        ['otobüs', 'отобю́с', 'автобус'],
+        ['taksi', 'такси́', 'такси'],
+        ['istasyon', 'истасьо́н', 'станция'],
+        ['durak', 'дура́к', 'остановка'],
+        ['bilet', 'билэ́т', 'билет'],
+        ['yol / cadde', 'ёл / джаддэ́', 'дорога/улица'],
+        ['düz', 'дюз', 'прямо'],
+        ['sol', 'сол', 'налево'],
+        ['sağ', 'са', 'направо'],
+        ['yakın / uzak', 'яки́н / уза́к', 'близко / далеко'],
       ]
     },
     {
       id: 'v7', title: 'Покупки и деньги', emoji: '🛒',
       hint: 'Диалог в магазине/банке — обязательная тема',
       words: [
-        ['το κατάστημα', 'то катастима', 'магазин'],
-        ['η τιμή', 'и тими', 'цена'],
-        ['η απόδειξη', 'и аподиксы', 'чек'],
-        ['φθηνός/ή', 'фтинос/и', 'дешёвый'],
-        ['ακριβός/ή', 'акривос/и', 'дорогой'],
-        ['πόσο κάνει;', 'посо кани', 'сколько стоит?'],
-        ['πληρώνω', 'плиронο', 'платить'],
-        ['ρέστα', 'рэста', 'сдача'],
-        ['η πιστωτική κάρτα', 'и пистотики карта', 'кредитная карта'],
-        ['η έκπτωση', 'и эктпоси', 'скидка'],
+        ['mağaza / dükkan', 'маа́за / дюкя́н', 'магазин'],
+        ['fiyat', 'фия́т', 'цена'],
+        ['fiş', 'фиш', 'чек'],
+        ['ucuz', 'уджу́з', 'дешёвый'],
+        ['pahalı', 'пахалы́', 'дорогой'],
+        ['ne kadar?', 'нэ када́р', 'сколько стоит?'],
+        ['ödemek', 'ёдэмэ́к', 'платить'],
+        ['para üstü', 'пара́ юстю́', 'сдача'],
+        ['kredi kartı', 'крэди́ карты́', 'кредитная карта'],
+        ['indirim', 'индири́м', 'скидка'],
       ]
     },
     {
       id: 'v8', title: 'Досуг и хобби', emoji: '🎭',
       hint: 'Рассказ о свободном времени — Speaking тема',
       words: [
-        ['ο ελεύθερος χρόνος', 'о элэфтэрос хронос', 'свободное время'],
-        ['το χόμπι', 'то хоби', 'хобби'],
-        ['ο κινηματογράφος', 'о кинэматографос', 'кино'],
-        ['το θέατρο', 'то сэатро', 'театр'],
-        ['η μουσική', 'и музики', 'музыка'],
-        ['ο αθλητισμός', 'о атлитизмос', 'спорт'],
-        ['ταξιδεύω', 'таксидэво', 'путешествовать'],
-        ['διαβάζω', 'диаваzo', 'читать'],
-        ['μαγειρεύω', 'майирэво', 'готовить'],
-        ['βγαίνω έξω', 'вйэно эксо', 'выходить/гулять'],
+        ['boş zaman', 'бош зама́н', 'свободное время'],
+        ['hobi', 'хо́би', 'хобби'],
+        ['sinema', 'синема́', 'кино'],
+        ['tiyatro', 'тиятро́', 'театр'],
+        ['müzik', 'мю́зик', 'музыка'],
+        ['spor', 'спор', 'спорт'],
+        ['seyahat etmek', 'сэяха́т этмэ́к', 'путешествовать'],
+        ['okumak', 'окума́к', 'читать'],
+        ['yemek pişirmek', 'емэ́к пиширмэ́к', 'готовить'],
+        ['dışarı çıkmak', 'дышары́ чыкма́к', 'выходить/гулять'],
       ]
     },
     {
       id: 'v9', title: 'Время и даты', emoji: '📅',
       hint: 'Нужны для любого письменного задания',
       words: [
-        ['χθες', 'хтэс', 'вчера'],
-        ['σήμερα', 'симэра', 'сегодня'],
-        ['αύριο', 'аврьо', 'завтра'],
-        ['την περασμένη εβδομάδα', 'тин пэразмэни эвдомада', 'на прошлой неделе'],
-        ['του χρόνου', 'ту хрону', 'в следующем году'],
-        ['συχνά', 'сихна', 'часто'],
-        ['μερικές φορές', 'мэрикэс форэс', 'иногда'],
-        ['ποτέ', 'потэ', 'никогда'],
-        ['πάντα', 'панта', 'всегда'],
-        ['τελευταία', 'тэлэфтэа', 'последнее время / недавно'],
+        ['dün', 'дюн', 'вчера'],
+        ['bugün', 'бугю́н', 'сегодня'],
+        ['yarın', 'яры́н', 'завтра'],
+        ['geçen hafta', 'гэчэ́н хафта́', 'на прошлой неделе'],
+        ['gelecek yıl', 'гэлэджэ́к йыл', 'в следующем году'],
+        ['sık sık', 'сык-сык', 'часто'],
+        ['bazen', 'базэ́н', 'иногда'],
+        ['hiçbir zaman', 'хичби́р зама́н', 'никогда'],
+        ['her zaman', 'хэр зама́н', 'всегда'],
+        ['son zamanlarda', 'сон замалла́рда', 'последнее время / недавно'],
       ]
     },
     {
       id: 'v10', title: 'Полезные фразы-связки', emoji: '🔗',
       hint: 'Эти слова поднимают оценку за Writing и Speaking',
       words: [
-        ['επίσης', 'эпisis', 'также'],
-        ['ωστόσο', 'остосо', 'однако'],
-        ['επομένως', 'эпомэнос', 'следовательно'],
-        ['για παράδειγμα', 'йа парадэйма', 'например'],
-        ['από τη μία... από την άλλη', 'апо ти миа... апо тин али', 'с одной стороны... с другой'],
-        ['συμφωνώ / διαφωνώ', 'симфоно / диафоно', 'согласен / не согласен'],
-        ['κατά τη γνώμη μου', 'ката ти гноми му', 'по моему мнению'],
-        ['νομίζω ότι', 'номизо оти', 'я думаю что'],
-        ['θα ήθελα να', 'са итэла на', 'я бы хотел(а)'],
-        ['ευχαριστώ πολύ', 'эфхаристо поли', 'большое спасибо'],
+        ['ayrıca', 'айры́джа', 'также'],
+        ['ama / fakat', 'ама́ / фака́т', 'однако'],
+        ['bu yüzden', 'бу юздэ́н', 'следовательно'],
+        ['örneğin', 'орнэи́н', 'например'],
+        ['bir yandan... öte yandan', 'бир янда́н... отэ́ янда́н', 'с одной стороны... с другой'],
+        ['katılıyorum / katılmıyorum', 'катылы́ёрум / катылмы́ёрум', 'согласен / не согласен'],
+        ['bence', 'бэ́ндже', 'по моему мнению'],
+        ['sanırım ki', 'саны́рым ки', 'я думаю что'],
+        ['isterdim', 'истэрди́м', 'я бы хотел(а)'],
+        ['çok teşekkür ederim', 'чок тэшэккю́р эдэри́м', 'большое спасибо'],
       ]
     },
   ];
@@ -4156,7 +4152,7 @@ function getExamVocabHTML() {
   <div class="gram-subtitle">${t.hint}</div>
   <table class="vocab-ex-table">
     <thead><tr>
-      <th>Греческий</th><th>Транскрипция</th><th>Перевод</th>
+      <th>Турецкий</th><th>Транскрипция</th><th>Перевод</th>
     </tr></thead>
     <tbody>${rows}</tbody>
   </table>
@@ -4167,7 +4163,7 @@ function getExamVocabHTML() {
 <div class="gram-nav">
   <div class="gram-toc">${toc}</div>
 </div>
-<div class="vocab-ex-intro">100 ключевых слов по темам экзамена. Нажми 🔊 чтобы услышать.</div>
+<div class="vocab-ex-intro">100 ключевых слов по темам A2–B1. Нажми 🔊 чтобы услышать.</div>
 ${blocks}`;
 }
 
@@ -4177,112 +4173,112 @@ const EXAM_MOCK_QUESTIONS = [
   // -- GRAMMAR --
   {
     type: 'grammar',
-    q: 'Выбери правильную форму глагола:\nΕγώ ___ στην Κύπρο.',
-    opts: ['μένω', 'μένεις', 'μένει', 'μένουμε'],
+    q: 'Выбери правильную форму глагола:\nBen Türkiye\'de ___.',
+    opts: ['yaşıyorum', 'yaşıyorsun', 'yaşıyor', 'yaşıyoruz'],
     correct: 0,
-    exp: 'Εγώ (я) → 1-е лицо ед.ч.: μένω'
+    exp: 'Ben (я) → 1-е лицо ед.ч.: yaşıyorum'
   },
   {
     type: 'grammar',
-    q: 'Выбери правильную форму:\nΗ Μαρία ___ καφέ κάθε πρωί.',
-    opts: ['πίνει', 'πίνω', 'πίνετε', 'πίνουν'],
+    q: 'Выбери правильную форму:\nAyşe her sabah kahve ___.',
+    opts: ['içiyor', 'içiyorum', 'içiyorsunuz', 'içiyorlar'],
     correct: 0,
-    exp: 'Η Μαρία — 3-е лицо ед.ч.: πίνει'
+    exp: 'Ayşe — 3-е лицо ед.ч.: içiyor'
   },
   {
     type: 'grammar',
-    q: 'Прошедшее время (αόριστος). Выбери верное:\nΧθες εγώ ___ στο σούπερ μάρκετ.',
-    opts: ['πήγα', 'πάω', 'πηγαίνω', 'πάμε'],
+    q: 'Прошедшее время (-DI). Выбери верное:\nDün ben markete ___.',
+    opts: ['gittim', 'gidiyorum', 'giderim', 'gideceğim'],
     correct: 0,
-    exp: 'Αόριστος от πηγαίνω (я шёл/пошёл) → πήγα'
+    exp: 'Прошедшее от gitmek (я пошёл) → gittim'
   },
   {
     type: 'grammar',
-    q: 'Будущее время θα. Выбери верное:\nΑύριο εμείς ___ στη θάλασσα.',
-    opts: ['θα πάμε', 'θα πάω', 'θα πάει', 'πάμε'],
+    q: 'Будущее время (-ecek/-acak). Выбери верное:\nYarın biz denize ___.',
+    opts: ['gideceğiz', 'gidiyoruz', 'gittik', 'gideriz'],
     correct: 0,
-    exp: 'Εμείς (мы) + θα → θα πάμε'
+    exp: 'Biz (мы) + gitmek в будущем → gideceğiz'
   },
   {
     type: 'grammar',
-    q: 'Выбери правильный артикль:\n___ δάσκαλος είναι πολύ καλός.',
-    opts: ['Ο', 'Η', 'Το', 'Τα'],
+    q: 'Выбери правильный падеж:\nHer gün ___ temizliyorum.',
+    opts: ['evi', 'eve', 'evde', 'evden'],
     correct: 0,
-    exp: 'δάσκαλος — мужской род → ο δάσκαλος'
+    exp: 'Вин. падеж (кого? что?) для «ev» → evi (я убираю дом)'
   },
   {
     type: 'grammar',
-    q: 'Вин. падеж. Выбери верное:\nΑγαπώ ___ μητέρα μου.',
-    opts: ['την', 'η', 'της', 'τη'],
+    q: 'Выбери правильный падеж:\nOkul___ gidiyorum.',
+    opts: ['a', 'u', 'da', 'dan'],
     correct: 0,
-    exp: 'Вин. падеж жен. рода ед.ч. → την (перед согласным: τη)'
+    exp: 'Дат. падеж (куда?) → okula (иду в школу)'
   },
   // -- VOCABULARY --
   {
     type: 'vocab',
-    q: 'Что значит слово «το ενοίκιο»?',
+    q: 'Что значит слово «kira»?',
     opts: ['аренда/арендная плата', 'электричество', 'страховка', 'налог'],
     correct: 0,
-    exp: 'Το ενοίκιο = арендная плата, аренда квартиры'
+    exp: 'Kira = арендная плата, аренда квартиры'
   },
   {
     type: 'vocab',
-    q: 'Выбери верный перевод:\n«Έχω πυρετό»',
+    q: 'Выбери верный перевод:\n«Ateşim var»',
     opts: ['У меня температура', 'Мне холодно', 'У меня болит голова', 'Я устал'],
     correct: 0,
-    exp: 'Πυρετός = жар/температура; έχω πυρετό = у меня жар'
+    exp: 'Ateş = жар/температура; ateşim var = у меня жар'
   },
   {
     type: 'vocab',
     q: 'Как по-турецки «скидка»?',
-    opts: ['η έκπτωση', 'η απόδειξη', 'η τιμή', 'η πληρωμή'],
+    opts: ['indirim', 'fiş', 'fiyat', 'ödeme'],
     correct: 0,
-    exp: 'Η έκπτωση = скидка'
+    exp: 'Indirim = скидка'
   },
   {
     type: 'vocab',
-    q: 'Что значит «αριστερά»?',
+    q: 'Что значит «sol»?',
     opts: ['налево', 'направо', 'прямо', 'назад'],
     correct: 0,
-    exp: 'Αριστερά = налево; δεξιά = направо; ευθεία = прямо'
+    exp: 'Sol = налево; sağ = направо; düz = прямо'
   },
   // -- READING --
   {
     type: 'reading',
-    passage: 'Η Άννα είναι νοσοκόμα. Δουλεύει σε νοσοκομείο στη Λευκωσία. Κάθε μέρα πηγαίνει στη δουλειά με το λεωφορείο.',
-    q: 'Πού δουλεύει η Άννα;',
-    opts: ['Σε νοσοκομείο', 'Σε σχολείο', 'Σε φαρμακείο', 'Στο σούπερ μάρκετ'],
+    passage: 'Ayşe hemşiredir. İstanbul\'da bir hastanede çalışıyor. Her gün işe otobüsle gidiyor.',
+    q: 'Ayşe nerede çalışıyor?',
+    opts: ['Hastanede', 'Okulda', 'Eczanede', 'Süpermarkette'],
     correct: 0,
-    exp: 'В тексте: «Δουλεύει σε νοσοκομείο» — работает в больнице'
+    exp: 'В тексте: «bir hastanede çalışıyor» — работает в больнице'
   },
   {
     type: 'reading',
-    passage: 'Η Άννα είναι νοσοκόμα. Δουλεύει σε νοσοκομείο στη Λευκωσία. Κάθε μέρα πηγαίνει στη δουλειά με το λεωφορείο.',
-    q: 'Πώς πηγαίνει στη δουλειά;',
-    opts: ['Με το λεωφορείο', 'Με το αυτοκίνητο', 'Με το ταξί', 'Με τα πόδια'],
+    passage: 'Ayşe hemşiredir. İstanbul\'da bir hastanede çalışıyor. Her gün işe otobüsle gidiyor.',
+    q: 'İşe nasıl gidiyor?',
+    opts: ['Otobüsle', 'Arabayla', 'Taksiyle', 'Yürüyerek'],
     correct: 0,
-    exp: 'В тексте: «πηγαίνει στη δουλειά με το λεωφορείο» — на автобусе'
+    exp: 'В тексте: «işe otobüsle gidiyor» — на автобусе'
   },
   {
     type: 'grammar',
-    q: 'Выбери правильный предлог:\nΠηγαίνω ___ δουλειά κάθε μέρα.',
-    opts: ['στη', 'από', 'με', 'για'],
+    q: 'Выбери правильный послелог:\nİki yıl ___ buraya taşındım.',
+    opts: ['önce', 'sonra', 'için', 'ile'],
     correct: 0,
-    exp: 'Πηγαίνω στη δουλειά = иду на работу (στη = σε + τη)'
+    exp: '«İki yıl önce» = два года назад — önce ставится ПОСЛЕ существительного'
   },
   {
     type: 'vocab',
-    q: 'Фраза «κατά τη γνώμη μου» означает:',
+    q: 'Фраза «bence» означает:',
     opts: ['по моему мнению', 'в конце концов', 'с другой стороны', 'например'],
     correct: 0,
-    exp: 'Κατά τη γνώμη μου = по моему мнению — важная фраза для Speaking/Writing'
+    exp: 'Bence = по моему мнению — важная фраза для Speaking/Writing'
   },
   {
     type: 'grammar',
-    q: 'Выбери верную конструкцию:\nΘέλω ___ πάω στην παραλία.',
-    opts: ['να', 'θα', 'ότι', 'που'],
+    q: 'Выбери верную конструкцию:\nSahile ___ istiyorum.',
+    opts: ['gitmek', 'gidiyorum', 'gittim', 'gidecek'],
     correct: 0,
-    exp: 'Θέλω να + гл. = хочу + инфинитив (θέλω να πάω = хочу пойти)'
+    exp: 'istemek + инфинитив (-mak/-mek): Sahile gitmek istiyorum = хочу пойти на пляж'
   },
 ];
 
@@ -4370,63 +4366,63 @@ function nextExamTestQuestion() {
 
 const EXAM_LISTENING_TRACKS = [
   {
-    title: 'Τηλεφωνική κλήση',
+    title: 'Telefon görüşmesi',
     titleRu: 'Звонок в клинику',
     emoji: '📞',
-    text: 'Καλημέρα, θέλω να κλείσω ένα ραντεβού με τον γιατρό. Είμαι η Μαρία Παπαδοπούλου. Έχω πονοκέφαλο και πυρετό από χθες. Μπορώ να έρθω αύριο το πρωί στις δέκα;',
-    textRu: 'Доброе утро, я хочу записаться к врачу. Я Мария Пападопулу. У меня головная боль и температура со вчерашнего дня. Могу ли я прийти завтра утром в десять?',
+    text: 'Günaydın, doktordan randevu almak istiyorum. Ben Ayşe Yılmaz. Dünden beri başım ağrıyor ve ateşim var. Yarın sabah saat onda gelebilir miyim?',
+    textRu: 'Доброе утро, я хочу записаться к врачу. Я Айше Йылмаз. У меня со вчерашнего дня болит голова и температура. Могу я прийти завтра утром в десять?',
     questions: [
-      { q: 'Τι θέλει η Μαρία;', opts: ['Να κλείσει ραντεβού', 'Να αγοράσει φάρμακα', 'Να μιλήσει με νοσοκόμα', 'Να πάει στο νοσοκομείο'], correct: 0, exp: 'Μαρία говорит: «θέλω να κλείσω ένα ραντεβού» — хочу записаться' },
-      { q: 'Τι έχει η Μαρία;', opts: ['Πονοκέφαλο και πυρετό', 'Πόνο στην πλάτη', 'Κρύο και βήχα', 'Στομαχόπονο'], correct: 0, exp: 'Она говорит: «έχω πονοκέφαλο και πυρετό» — головная боль и температура' },
-      { q: 'Πότε θέλει να έρθει;', opts: ['Αύριο το πρωί', 'Σήμερα το απόγευμα', 'Μεθαύριο', 'Την Παρασκευή'], correct: 0, exp: 'Она говорит: «αύριο το πρωί στις δέκα» — завтра утром в десять' },
+      { q: 'Ayşe ne istiyor?', opts: ['Randevu almak', 'İlaç almak', 'Hemşireyle konuşmak', 'Hastaneye gitmek'], correct: 0, exp: 'Айше говорит: «randevu almak istiyorum» — хочет записаться' },
+      { q: 'Ayşe\'nin neyi var?', opts: ['Baş ağrısı ve ateş', 'Sırt ağrısı', 'Üşütme ve öksürük', 'Mide ağrısı'], correct: 0, exp: 'Она говорит: «başım ağrıyor ve ateşim var» — головная боль и температура' },
+      { q: 'Ne zaman gelmek istiyor?', opts: ['Yarın sabah', 'Bugün öğleden sonra', 'Yarından sonraki gün', 'Cuma günü'], correct: 0, exp: 'Она говорит: «yarın sabah saat onda» — завтра утром в десять' },
     ]
   },
   {
-    title: 'Ανακοίνωση στο σούπερ μάρκετ',
+    title: 'Süpermarkette anons',
     titleRu: 'Объявление в супермаркете',
     emoji: '🛒',
-    text: 'Αγαπητοί πελάτες, σας ενημερώνουμε ότι σήμερα έχουμε μεγάλες εκπτώσεις στο τμήμα των φρούτων και λαχανικών. Επίσης, από τις έξι το απόγευμα, το κατάστημα θα κλείσει νωρίτερα λόγω αργίας. Σας ευχαριστούμε για την κατανόησή σας.',
-    textRu: 'Уважаемые покупатели, сообщаем вам, что сегодня у нас большие скидки в отделе фруктов и овощей. Также с шести вечера магазин закроется раньше в связи с праздником. Благодарим за понимание.',
+    text: 'Değerli müşterilerimiz, bugün meyve ve sebze reyonunda büyük indirimler olduğunu bildiririz. Ayrıca, akşam saat altıdan itibaren mağazamız bayram nedeniyle erken kapanacaktır. Anlayışınız için teşekkür ederiz.',
+    textRu: 'Уважаемые покупатели, сообщаем, что сегодня в отделе фруктов и овощей большие скидки. Также с шести вечера наш магазин закроется раньше в связи с праздником. Благодарим за понимание.',
     questions: [
-      { q: 'Πού υπάρχουν εκπτώσεις;', opts: ['Φρούτα και λαχανικά', 'Κρέας και ψάρια', 'Ποτά', 'Είδη καθαρισμού'], correct: 0, exp: 'В объявлении: «εκπτώσεις στο τμήμα των φρούτων και λαχανικών»' },
-      { q: 'Πότε κλείνει το κατάστημα;', opts: ['Στις έξι το απόγευμα', 'Στις οκτώ', 'Στις εννιά', 'Στις δέκα'], correct: 0, exp: '«από τις έξι το απόγευμα, το κατάστημα θα κλείσει»' },
-      { q: 'Γιατί κλείνει νωρίς;', opts: ['Λόγω αργίας', 'Λόγω επισκευής', 'Λόγω απεργίας', 'Λόγω καθαρισμού'], correct: 0, exp: '«θα κλείσει νωρίτερα λόγω αργίας» — из-за праздника' },
+      { q: 'Nerede indirim var?', opts: ['Meyve ve sebze', 'Et ve balık', 'İçecekler', 'Temizlik ürünleri'], correct: 0, exp: 'В объявлении: «meyve ve sebze reyonunda büyük indirimler»' },
+      { q: 'Mağaza ne zaman kapanıyor?', opts: ['Akşam saat altıda', 'Sekizde', 'Dokuzda', 'Onda'], correct: 0, exp: '«akşam saat altıdan itibaren... erken kapanacaktır»' },
+      { q: 'Neden erken kapanıyor?', opts: ['Bayram nedeniyle', 'Tamirat nedeniyle', 'Grev nedeniyle', 'Temizlik nedeniyle'], correct: 0, exp: '«bayram nedeniyle erken kapanacaktır» — из-за праздника' },
     ]
   },
   {
-    title: 'Διάλογος για ενοίκιο',
+    title: 'Kira hakkında konuşma',
     titleRu: 'Разговор об аренде',
     emoji: '🏠',
-    text: '— Καλησπέρα, είδα την αγγελία σας για το διαμέρισμα. Είναι ακόμα διαθέσιμο;\n— Ναι, είναι. Είναι δύο υπνοδωμάτια, στον τρίτο όροφο. Το ενοίκιο είναι οκτακόσια ευρώ το μήνα.\n— Περιλαμβάνει τα κοινόχρηστα;\n— Ναι, περιλαμβάνει νερό και σκουπίδια, αλλά όχι ρεύμα.',
-    textRu: '— Добрый вечер, я видел ваше объявление о квартире. Она ещё свободна?\n— Да. Две спальни, третий этаж. Аренда 800 евро в месяц.\n— Включены ли коммунальные?\n— Да, включает воду и мусор, но не электричество.',
+    text: '— İyi akşamlar, dairenizle ilgili ilanınızı gördüm. Hâlâ müsait mi?\n— Evet, müsait. İki yatak odası var, üçüncü katta. Kira ayda on iki bin lira.\n— Aidat dahil mi?\n— Evet, su ve çöp dahil, ama elektrik dahil değil.',
+    textRu: '— Добрый вечер, я видел ваше объявление о квартире. Она ещё свободна?\n— Да, свободна. Две спальни, третий этаж. Аренда 12 000 лир в месяц.\n— Коммунальные включены?\n— Да, вода и вывоз мусора включены, но электричество не включено.',
     questions: [
-      { q: 'Πόσα υπνοδωμάτια έχει το διαμέρισμα;', opts: ['Δύο', 'Ένα', 'Τρία', 'Τέσσερα'], correct: 0, exp: '«Είναι δύο υπνοδωμάτια» — две спальни' },
-      { q: 'Πόσο είναι το ενοίκιο;', opts: ['800 ευρώ', '600 ευρώ', '1000 ευρώ', '750 ευρώ'], correct: 0, exp: '«Το ενοίκιο είναι οκτακόσια ευρώ» — 800 евро' },
-      { q: 'Τι ΔΕΝ περιλαμβάνεται στο ενοίκιο;', opts: ['Το ρεύμα', 'Το νερό', 'Τα σκουπίδια', 'Η θέρμανση'], correct: 0, exp: '«αλλά όχι ρεύμα» — электричество не включено' },
+      { q: 'Dairede kaç yatak odası var?', opts: ['İki', 'Bir', 'Üç', 'Dört'], correct: 0, exp: '«İki yatak odası var» — две спальни' },
+      { q: 'Kira ne kadar?', opts: ['12.000 lira', '6.000 lira', '10.000 lira', '7.500 lira'], correct: 0, exp: '«Kira ayda on iki bin lira» — 12 000 лир' },
+      { q: 'Kiraya ne dahil DEĞİL?', opts: ['Elektrik', 'Su', 'Çöp', 'Aidat'], correct: 0, exp: '«elektrik dahil değil» — электричество не включено' },
     ]
   },
   {
-    title: 'Μήνυμα στον τηλεφωνητή',
+    title: 'Telesekreterde mesaj',
     titleRu: 'Сообщение на автоответчике',
     emoji: '📱',
-    text: 'Γεια σου Νίκο, είμαι η Ελένη. Σε καλώ για να θυμηθείς ότι αύριο έχουμε μάθημα ελληνικών στις επτά το βράδυ. Το μάθημα γίνεται στο πολιτιστικό κέντρο στην οδό Μακαρίου. Αν δεν μπορείς να έρθεις, παρακαλώ στείλε μου μήνυμα.',
-    textRu: 'Привет, Нико, это Элени. Звоню напомнить, что завтра у нас урок греческого в семь вечера. Занятие проходит в культурном центре на улице Макариу. Если не сможешь прийти, пожалуйста, напиши мне.',
+    text: 'Selam Mehmet, ben Zeynep. Yarın akşam saat yedide Türkçe dersimiz olduğunu hatırlatmak için arıyorum. Ders, Bağdat Caddesi\'ndeki kültür merkezinde yapılıyor. Gelemeyeceksen lütfen bana mesaj at.',
+    textRu: 'Привет, Мехмет, это Зейнеп. Звоню напомнить, что завтра вечером в семь у нас урок турецкого. Занятие проходит в культурном центре на улице Багдат. Если не сможешь прийти, пожалуйста, напиши мне сообщение.',
     questions: [
-      { q: 'Πότε είναι το μάθημα;', opts: ['Αύριο στις 7 το βράδυ', 'Σήμερα στις 7', 'Αύριο το πρωί', 'Μεθαύριο'], correct: 0, exp: '«αύριο έχουμε μάθημα... στις επτά το βράδυ» — завтра в 7 вечера' },
-      { q: 'Πού γίνεται το μάθημα;', opts: ['Πολιτιστικό κέντρο', 'Σχολείο', 'Βιβλιοθήκη', 'Σπίτι της Ελένης'], correct: 0, exp: '«γίνεται στο πολιτιστικό κέντρο» — в культурном центре' },
-      { q: 'Τι να κάνει ο Νίκος αν δεν μπορεί να έρθει;', opts: ['Να στείλει μήνυμα', 'Να τηλεφωνήσει', 'Να έρθει αργότερα', 'Να στείλει email'], correct: 0, exp: '«παρακαλώ στείλε μου μήνυμα» — написать сообщение' },
+      { q: 'Ders ne zaman?', opts: ['Yarın akşam saat 7\'de', 'Bugün saat 7\'de', 'Yarın sabah', 'Öbür gün'], correct: 0, exp: '«yarın akşam saat yedide dersimiz» — завтра в 7 вечера' },
+      { q: 'Ders nerede yapılıyor?', opts: ['Kültür merkezinde', 'Okulda', 'Kütüphanede', 'Zeynep\'in evinde'], correct: 0, exp: '«kültür merkezinde yapılıyor» — в культурном центре' },
+      { q: 'Mehmet gelemezse ne yapmalı?', opts: ['Mesaj atmalı', 'Telefon etmeli', 'Sonra gelmeli', 'E-posta göndermeli'], correct: 0, exp: '«lütfen bana mesaj at» — написать сообщение' },
     ]
   },
   {
-    title: 'Οδηγίες στην πόλη',
+    title: 'Şehirde yol tarifi',
     titleRu: 'Маршрут по городу',
     emoji: '🗺️',
-    text: 'Για να πάτε στο δημαρχείο, πηγαίνετε ευθεία στην κεντρική οδό για διακόσια μέτρα. Στο πρώτο φανάρι, στρίψτε αριστερά. Συνεχίστε για εκατό μέτρα και το δημαρχείο είναι στα δεξιά σας, δίπλα στην τράπεζα.',
-    textRu: 'Чтобы добраться до мэрии, идите прямо по центральной улице 200 метров. На первом светофоре поверните налево. Продолжайте 100 метров — мэрия будет справа от вас, рядом с банком.',
+    text: 'Belediyeye gitmek için ana caddede iki yüz metre düz gidin. İlk trafik ışığında sola dönün. Yüz metre daha devam edin, belediye sağınızda, bankanın yanında olacak.',
+    textRu: 'Чтобы добраться до мэрии, идите прямо по главной улице 200 метров. На первом светофоре поверните налево. Продолжайте ещё 100 метров — мэрия будет справа от вас, рядом с банком.',
     questions: [
-      { q: 'Πού στρίβει κανείς στο φανάρι;', opts: ['Αριστερά', 'Δεξιά', 'Ευθεία', 'Πίσω'], correct: 0, exp: '«στρίψτε αριστερά» — поверните налево' },
-      { q: 'Πού βρίσκεται το δημαρχείο;', opts: ['Στα δεξιά, δίπλα στην τράπεζα', 'Στα αριστερά', 'Απέναντι από το φανάρι', 'Δίπλα στο σχολείο'], correct: 0, exp: '«στα δεξιά σας, δίπλα στην τράπεζα» — справа, рядом с банком' },
-      { q: 'Πόσα μέτρα να πάει κανείς ευθεία πρώτα;', opts: ['200 μέτρα', '100 μέτρα', '300 μέτρα', '500 μέτρα'], correct: 0, exp: '«ευθεία... για διακόσια μέτρα» — 200 метров прямо' },
+      { q: 'Trafik ışığında hangi yöne dönülüyor?', opts: ['Sola', 'Sağa', 'Düz', 'Geri'], correct: 0, exp: '«sola dönün» — поверните налево' },
+      { q: 'Belediye nerede?', opts: ['Sağda, bankanın yanında', 'Solda', 'Trafik ışığının karşısında', 'Okulun yanında'], correct: 0, exp: '«sağınızda, bankanın yanında» — справа, рядом с банком' },
+      { q: 'İlk önce kaç metre düz gidilmeli?', opts: ['200 metre', '100 metre', '300 metre', '500 metre'], correct: 0, exp: '«iki yüz metre düz gidin» — 200 метров прямо' },
     ]
   },
 ];
