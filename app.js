@@ -2044,7 +2044,7 @@ function buildPostContent(type, data) {
       const stars = data.pct === 1 ? '⭐⭐⭐' : data.pct >= 0.7 ? '⭐⭐' : '⭐';
       return {
         emoji: '🧩',
-        title: `Квиз: ${data.categoryTitle || 'Греческий'}`,
+        title: `Квиз: ${data.categoryTitle || 'Турецкий'}`,
         subtitle: `${stars} · ${data.score}/${data.total} правильно`,
         chips: [
           { text: `+${data.xp} XP`, color: 'green' },
@@ -2845,7 +2845,7 @@ function completeQuiz() {
   const cat = QUIZ_CATEGORIES.find(c => c.id === quizState.categoryId);
   createPost('quiz_complete', {
     score, total, pct, xp: xpEarned,
-    categoryTitle: cat?.title || 'Греческий'
+    categoryTitle: cat?.title || 'Турецкий'
   });
 
   document.getElementById('quiz-complete-stars').textContent =
