@@ -73,6 +73,63 @@ function signOut() {
   auth.signOut();
 }
 
+// ============================================================
+// УДАЛЕНИЕ АККАУНТА (App Store 5.1.1(v) — обязательно, раз есть регистрация)
+// ============================================================
+function deleteAccount() {
+  if (!currentUser) return;
+  const m = document.getElementById('delete-account-modal');
+  if (m) m.style.display = 'flex';
+}
+
+function dismissDeleteAccount() {
+  const m = document.getElementById('delete-account-modal');
+  if (m) m.style.display = 'none';
+}
+
+async function confirmDeleteAccount() {
+  if (!currentUser) return;
+  const btn = document.getElementById('delete-account-confirm');
+  if (btn) { btn.disabled = true; btn.textContent = 'Удаляем…'; }
+  const uid = currentUser.uid;
+  try {
+    // 1. Свои посты в ленте (пока есть валидный токен — иначе правила не пустят)
+    const myPosts = await db.collection('posts').where('uid', '==', uid).get();
+    if (!myPosts.empty) {
+      const batch = db.batch();
+      myPosts.forEach(d => batch.delete(d.ref));
+      await batch.commit();
+    }
+    // 2. Подписка на пуши и документ пользователя
+    await db.collection('push_subscriptions').doc(uid).delete().catch(() => {});
+    await db.collection('users').doc(uid).delete().catch(() => {});
+    // (subscriptions/{email} не трогаем — платёжная запись, правила write:false)
+
+    // 3. Локальный прогресс
+    try {
+      localStorage.removeItem(STATE_KEY);
+      localStorage.removeItem(LEGACY_STATE_KEY);
+      localStorage.removeItem('apnsToken');
+    } catch (e) {}
+    state = { ...DEFAULT_STATE };
+
+    // 4. Сам аккаунт Firebase Auth (в конце — после удаления токен пропадёт)
+    await currentUser.delete();
+
+    dismissDeleteAccount();
+    // onAuthStateChanged(null) сам уведёт на главную как гостя
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Удалить навсегда'; }
+    if (e.code === 'auth/requires-recent-login') {
+      dismissDeleteAccount();
+      alert('Для безопасности войди заново, а затем повтори удаление аккаунта.');
+      auth.signOut(); // свежий вход даст «recent login», и удаление пройдёт
+    } else {
+      alert('Не удалось удалить аккаунт: ' + (e.message || e.code || e));
+    }
+  }
+}
+
 function showUserMenu() {
   const menu = document.getElementById('user-menu');
   menu.style.display = menu.style.display === 'none' ? 'flex' : 'none';
@@ -180,10 +237,15 @@ function withTimeout(promise, ms) {
 // ============================================================
 // PERSISTENCE
 // ============================================================
+// Ключ локального прогресса. Исторически был 'greek-app-state-v2' — копипаста из
+// IziGreek; читаем старый ключ как миграцию, пишем уже под турецким.
+const STATE_KEY = 'iziturkish-state-v2';
+const LEGACY_STATE_KEY = 'greek-app-state-v2';
+
 async function loadState() {
   // Сначала загружаем из localStorage как fallback
   try {
-    const saved = localStorage.getItem('greek-app-state-v2');
+    const saved = localStorage.getItem(STATE_KEY) || localStorage.getItem(LEGACY_STATE_KEY);
     if (saved) state = { ...DEFAULT_STATE, ...JSON.parse(saved) };
   } catch (e) { state = { ...DEFAULT_STATE }; }
 
@@ -193,14 +255,14 @@ async function loadState() {
       const doc = await withTimeout(db.collection('users').doc(currentUser.uid).get(), 5000);
       if (doc.exists) {
         state = { ...DEFAULT_STATE, ...doc.data() };
-        localStorage.setItem('greek-app-state-v2', JSON.stringify(state));
+        localStorage.setItem(STATE_KEY, JSON.stringify(state));
       }
     } catch (e) { console.error('Firestore load error:', e.message); }
   }
 }
 
 function saveState() {
-  localStorage.setItem('greek-app-state-v2', JSON.stringify(state));
+  localStorage.setItem(STATE_KEY, JSON.stringify(state));
   if (currentUser) {
     db.collection('users').doc(currentUser.uid)
       .set(state)
@@ -232,6 +294,10 @@ async function checkSubscription() {
 
   // Developer account — always has access
   if (currentUser.email?.toLowerCase() === 'dondanilo1994@gmail.com') return true;
+
+  // В iOS-приложении подписку подтверждает RevenueCat (native-iap.js выставляет
+  // window.__iziNativeSubscription = true). На вебе всегда undefined → пропускаем.
+  if (window.__iziNativeSubscription === true) return true;
 
   // 1. Check users/{uid}.subscription (set by webhook)
   const ACTIVE_STATUSES = ['active', 'trialing', 'on_trial', 'paid'];
@@ -267,6 +333,87 @@ function finishOnboarding() {
   showScreen('screen-home');
   // Ask for push permission after onboarding — user is already engaged
   setTimeout(setupPushNotifications, 2000);
+}
+
+// ============================================================
+// ГОСТЕВОЙ РЕЖИМ + ПРОБНЫЕ УРОКИ
+// ============================================================
+// Зачем: (1) лендинг обещает «первая неделя бесплатно», а кабинет до этого
+// упирал вошедшего без подписки прямо в пейволл; (2) App Review нужен доступ
+// к ядру без аккаунта — иначе придётся давать демо-логин (гайдлайн 2.1).
+const TRIAL_LESSONS = 5; // сколько уроков доступно гостю без входа/подписки
+let hasSubscription = false;
+let pendingUpgrade = false; // гость нажал «оформить» → после входа сразу пэйволл
+
+// Пропускать ли в контент. Гостю дан пробник, дальше — окно с объяснением.
+// Прогресс гостя живёт в localStorage и переносится в аккаунт при входе.
+function trialGate() {
+  if (hasSubscription) return true;
+  if ((state.lessonsCompleted || 0) < TRIAL_LESSONS) return true;
+  showTrialModal();
+  return false;
+}
+
+function showTrialModal() {
+  const cta = document.getElementById('trial-cta');
+  if (cta) cta.textContent = currentUser ? 'Выбрать план' : 'Войти и открыть доступ';
+  const m = document.getElementById('trial-modal');
+  if (m) m.style.display = 'flex';
+}
+
+function dismissTrialModal() {
+  const m = document.getElementById('trial-modal');
+  if (m) m.style.display = 'none';
+}
+
+function trialUpgrade() {
+  dismissTrialModal();
+  if (currentUser) {
+    showPaywall();          // вошёл — сразу планы
+  } else {
+    pendingUpgrade = true;  // гость — сперва вход, после него откроем пэйволл
+    showLoginPromo();
+  }
+}
+
+// Кнопка «Не сейчас» на экране входа — только гостю, уже прошедшему онбординг
+// (на самом первом запуске уходить с экрана входа некуда).
+function updateLoginBackBtn() {
+  const back = document.getElementById('login-back-btn');
+  if (back) back.style.display = state.onboardingDone ? 'block' : 'none';
+}
+
+function showLoginPromo() {
+  const sub = document.querySelector('#screen-login .login-subtitle');
+  if (sub) sub.textContent = 'Бесплатные уроки пройдены. Войди, чтобы продолжить и сохранить прогресс.';
+  updateLoginBackBtn();
+  showScreen('screen-login');
+}
+
+// Обычный вход по кнопке «Войти» на главной — ведём на экран входа с обоими
+// провайдерами (Google + Apple), а не сразу в Google (гайдлайн 4.8).
+function showLogin() {
+  const sub = document.querySelector('#screen-login .login-subtitle');
+  if (sub) sub.textContent = 'Войди, чтобы прогресс сохранился на всех устройствах';
+  updateLoginBackBtn();
+  showScreen('screen-login');
+}
+
+// Гость: показываем «Войти», прячем аватар. Вошедший — наоборот.
+function updateGuestUi() {
+  const isGuest = !currentUser;
+  const loginBtn = document.getElementById('guest-login-btn');
+  const avatarBtn = document.getElementById('user-avatar-btn');
+  if (loginBtn) loginBtn.style.display = isGuest ? 'inline-flex' : 'none';
+  if (avatarBtn) avatarBtn.style.display = isGuest ? 'none' : 'inline-flex';
+}
+
+// Доступность уведомлений. В WKWebView (iOS-приложение) объекта Notification
+// нет вовсе — голое обращение кидает ReferenceError и роняет экран целиком.
+function pushPermission() {
+  try {
+    return (typeof Notification !== 'undefined' && Notification.permission) || 'unsupported';
+  } catch (e) { return 'unsupported'; }
 }
 
 const VAPID_PUBLIC_KEY = 'BLkbTz1djhvLDBZ5njQeRHESFiPNpwyZ5c0CnbFdlefGxrabmPhC8g75rU-umChSp1Cnlsl4S-RSiTL5dFd53Bw';
@@ -480,8 +627,12 @@ function showSettings() {
   });
 
   // Push toggle
-  const pushOn = Notification.permission === 'granted';
+  const pushOn = pushPermission() === 'granted';
   document.getElementById('push-toggle').classList.toggle('on', pushOn);
+
+  // Аккаунтные действия (выход/удаление) — только вошедшему
+  const accSection = document.getElementById('settings-account-section');
+  if (accSection) accSection.style.display = currentUser ? '' : 'none';
 
   // Stats
   document.getElementById('s-total-xp').textContent = state.totalXp;
@@ -503,11 +654,15 @@ function setDailyGoal(xp) {
 }
 
 async function togglePushSetting() {
-  if (Notification.permission === 'denied') {
+  if (pushPermission() === 'unsupported') {
+    alert('Уведомления в приложении подключаются отдельно — скоро включим.');
+    return;
+  }
+  if (pushPermission() === 'denied') {
     alert('Уведомления заблокированы в настройках браузера. Разрешите их вручную.');
     return;
   }
-  if (Notification.permission === 'granted') {
+  if (pushPermission() === 'granted') {
     // Unsubscribe
     const reg = await navigator.serviceWorker.ready;
     const sub = await reg.pushManager.getSubscription();
@@ -516,11 +671,16 @@ async function togglePushSetting() {
     document.getElementById('push-toggle').classList.remove('on');
   } else {
     await setupPushNotifications();
-    document.getElementById('push-toggle').classList.toggle('on', Notification.permission === 'granted');
+    document.getElementById('push-toggle').classList.toggle('on', pushPermission() === 'granted');
   }
 }
 
 function showPaywall() {
+  // В iOS-приложении оплата обязана идти через Apple IAP (гайдлайн 3.1.1), а не
+  // через внешний LemonSqueezy. native-iap.js регистрирует __iziIapPaywall и сам
+  // навешивает нативную покупку на кнопки. На вебе хук undefined → обычный флоу.
+  if (typeof window.__iziIapPaywall === 'function') { window.__iziIapPaywall(); return; }
+
   const monthlyUrl = `https://iziturkish.lemonsqueezy.com/checkout/buy/3a97ea52-6fbd-46ce-9817-96ed90cd2411?checkout[custom][user_id]=${currentUser?.uid || ''}`;
   const annualUrl = `https://iziturkish.lemonsqueezy.com/checkout/buy/dfa57638-0076-47b8-88cd-26cb4c27807e?checkout[custom][user_id]=${currentUser?.uid || ''}`;
 
@@ -558,33 +718,36 @@ async function init() {
     }
   }
 
-  // Подписываемся на состояние авторизации
+  // Подписываемся на состояние авторизации.
+  // Гость (user === null) больше НЕ упирается в экран входа — он попадает на
+  // главную и получает пробные уроки (TRIAL_LESSONS). Вход/подписка требуются
+  // только когда пробник исчерпан (trialGate → showTrialModal).
   auth.onAuthStateChanged(async user => {
-    if (user) {
-      currentUser = user;
-      await loadState();
-      await saveUserEmail();
-      checkStreak();
-      renderUserInfo();
+    currentUser = user || null;
+    await loadState();
+    checkStreak();
+    renderUserInfo();
+    updateGuestUi();
 
-      const hasAccess = await checkSubscription();
-      if (hasAccess) {
-        renderHome();
-        if (!state.onboardingDone) {
-          showScreen('screen-onboarding');
-        } else {
-          showScreen('screen-home');
-          // Silently refresh push subscription for returning users
-          if (Notification.permission === 'granted') {
-            setTimeout(setupPushNotifications, 3000);
-          }
-        }
-      } else {
-        showPaywall();
-      }
+    if (user) {
+      await saveUserEmail();
+      hasSubscription = await checkSubscription();
     } else {
-      currentUser = null;
-      showScreen('screen-login');
+      hasSubscription = false; // гость: локальный state, доступ по пробнику
+    }
+
+    renderHome();
+    if (!state.onboardingDone) {
+      showScreen('screen-onboarding');
+    } else if (user && !hasSubscription && pendingUpgrade) {
+      pendingUpgrade = false;
+      showPaywall();          // гость вошёл ради оформления — показываем планы
+    } else {
+      showScreen('screen-home');
+      // Тихо обновляем подписку на пуши у вошедших с доступом
+      if (user && hasSubscription && pushPermission() === 'granted') {
+        setTimeout(setupPushNotifications, 3000);
+      }
     }
   });
 }
@@ -647,6 +810,7 @@ function renderHome() {
 function showHome() {
   showScreen('screen-home');
   renderHome();
+  updateGuestUi();
 }
 
 // ============================================================
@@ -701,12 +865,14 @@ function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
 // LESSON — FLOW
 // ============================================================
 function startLesson() {
+  if (!trialGate()) return;
   const mods = getLessonModules();
   const num = Math.min(state.currentLesson || 1, mods.length);
   startTeachPhase(mods[num - 1]);
 }
 
 function startWeakLesson() {
+  if (!trialGate()) return;
   const weakIds = Object.keys(state.errorLog)
     .sort((a, b) => state.errorLog[b] - state.errorLog[a])
     .map(id => parseInt(id));
@@ -1062,6 +1228,7 @@ function buildSrsPool() {
 }
 
 function startSrsLesson() {
+  if (!trialGate()) return;
   const dueVerbs = getSrsDueVerbs();
   if (dueVerbs.length === 0) return;
   const pool = dueVerbs.length >= 2 ? dueVerbs : null;
@@ -1225,6 +1392,7 @@ function showScenarios() {
 }
 
 function startScenario(id) {
+  if (!trialGate()) return;
   const scenario = SCENARIOS.find(s => s.id === id);
   if (!scenario) return;
   scenarioState = { scenarioId: id, currentStep: 0, score: 0, answered: false };
@@ -1793,6 +1961,9 @@ async function submitSupportForm() {
 let feedUnsubscribe = null;
 
 function showFeed() {
+  // Лента требует аккаунта: правила Firestore пускают в posts только вошедших,
+  // гостю без этого guard'а прилетал бы permission-denied и пустой экран.
+  if (!currentUser) { showLoginPromo(); return; }
   showScreen('screen-feed');
   hideFeedBadge();
   renderComposerAvatar();
@@ -2512,6 +2683,7 @@ function searchVocab(query) {
 }
 
 function startVocabQuiz(categoryId) {
+  if (!trialGate()) return;
   const category = VOCAB_CATEGORIES.find(c => c.id === categoryId);
   if (!category) return;
   const words = shuffle([...category.words]).slice(0, 10);
@@ -2698,6 +2870,7 @@ function showQuiz() {
 }
 
 function startQuiz(categoryId) {
+  if (!trialGate()) return;
   const cat = QUIZ_CATEGORIES.find(c => c.id === categoryId);
   if (!cat) return;
   // Берём 10 предложений: сортируем по сложности, выбираем равномерно
