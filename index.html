@@ -114,8 +114,12 @@
         <div class="paywall-plan paywall-plan-popular">
           <div class="paywall-plan-badge">Выгоднее на 45%</div>
           <div class="paywall-plan-name">Годовая</div>
-          <div class="paywall-plan-price">€4.99 <span>/мес</span></div>
-          <div class="paywall-plan-billed">€59.88 в год</div>
+          <!-- Гайдлайн 3.1.2(c): сумма списания должна быть самым заметным элементом
+               экрана покупки, а расчётная цена за месяц — подчинённой по размеру и весу.
+               Было наоборот (€4.99/мес — 28px/800, €59.88 — 13px серым), ровно за это
+               Apple завернул грека (билд 18). Классы те же, содержимое поменяно местами. -->
+          <div class="paywall-plan-price">€59.88 <span>/год</span></div>
+          <div class="paywall-plan-billed">≈ €4.99 в месяц</div>
           <a id="paywall-annual-btn" href="#" target="_blank" class="paywall-btn-primary">Начать — 7 дней бесплатно</a>
         </div>
       </div>
